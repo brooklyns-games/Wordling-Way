@@ -1,16 +1,18 @@
 import pygame
-from abstract import MySprite
+from abstract import MySprite, test_instances
 
 menu = pygame.sprite.Group()
 
-
 class Button(MySprite):
-    buttons = pygame.sprite.Group()
 
     def __init__(self, string, interface, *groups, rect=(0, 0, 100, 50), align='left', mode='toggle'):
         # self.string = string
-        super().__init__(string, rect, interface, *groups, interface.items, Button.buttons)  # groups adding
-        # self.box = interface
+        # print('new', string, type(self))
+        super().__init__(string, rect, *groups, Button.instances)  # groups adding
+        # add interface.items
+        self.box = interface
+
+
         self.mode = mode
         """modes: toggle, event, slider"""
 
@@ -27,13 +29,14 @@ class Button(MySprite):
         self.hovering = False
         self.clicked = False
 
+        self.font = pygame.font.SysFont(None, int(self.rect.height * 1.5))
+
     def draw_me(self):
         self.image = self.get_transparent_surface(self.rect.size)
         # self.image.set_alpha(0)
         pygame.draw.rect(self.image, self.color, self.rect, 5, border_radius=15)
 
-        font = pygame.font.SysFont(None, int(self.rect.height))
-        text = font.render(str(self.name), True, self.color)
+        text = self.font.render(str(self.name), True, self.color)
         self.image.blit(text, text.get_rect())
         return self.image
 
@@ -80,9 +83,9 @@ class Button(MySprite):
             return self.box.rect.width - self.image.get_width(), self.box.rect.height - self.image.get_height()
 
     def update(self):
+        super().update()
         self.check_click()  # pygame.mouse.get_pressed()[0]
         # self.string = str(self.state)
-        self.draw_me()
         # Updating rect
         if self.at_mouse and self.clicked:
             x2, y2 = pygame.mouse.get_rel()
@@ -93,6 +96,7 @@ class Button(MySprite):
 
         # print(self.rect, type(self.rect))
         self.rect.update([self.x, self.y], self.image.get_size())
+        # print(Button.instances.list_names())
 
 
 class OKButton(Button):
@@ -108,6 +112,8 @@ class OKButton(Button):
 
     def set_click(self, switch):
         super().set_click(switch)
+
+# test_instances(Button)
 
 
 message_ok = pygame.event.Event(pygame.USEREVENT + 1)

@@ -3,18 +3,14 @@ import pygame
 from button import *
 from globs import *
 
-pygame.font.init()
 
 
 class Word(Button):
-    instances = pygame.sprite.Group()
-    font = pygame.font.SysFont(None, 80)
-
     def __init__(self, string, word_box, input_box):
         self.box = word_box
         # self.string = string
         super().__init__(string, self.box)  # this adds to self.box.items
-        self.add(self.box.words, Word.instances)
+        self.add(self.box.words,)
 
         # print(self.string, string)
         # For initialization
@@ -22,6 +18,7 @@ class Word(Button):
         self.word_box = word_box
         self.input_box = input_box
         self.available_boxes = (self.word_box, input_box)  # idk if this can be used
+
 
     def default_xy(self):
         self.update_index()
@@ -67,8 +64,7 @@ class Word(Button):
         pass
 
     def draw_me(self):
-        font = Word.font
-        self.image = font.render(self.name, True, self.color)
+        self.image = self.font.render(self.name, True, self.color)
         pygame.draw.rect(self.image, self.color, ([0, 0], self.image.get_size()), 5, border_radius=15)
 
     def update(self):

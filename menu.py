@@ -3,14 +3,15 @@ from globs import *
 from words import *
 from abstract import OrderedGroup, MySprite
 
-pygame.font.init()
+# pygame.font.init()
 
 
-class Interface(MySprite):
+class Interface(pygame.sprite.Sprite):
     instances = pygame.sprite.Group()
-
     def __init__(self, rect=(0, 0, W, H), name=None, color='light blue'):
-        super().__init__(name, rect, None, Interface.instances, self.__class__.instances)
+        # todo adding to Interface.instances also adds to Buttons.instances
+        super().__init__(Interface.instances)
+        # print('interface', name, len(self.groups()))
         self.name = name  # for developer reference
         self.rect = pygame.Rect(rect)
         self.image = pygame.Surface(self.rect.size)
@@ -19,6 +20,7 @@ class Interface(MySprite):
         self.mini_rect = self.rect.copy()
 
         self.items = OrderedGroup()  # other things that are not Word()s
+
 
     def draw_me(self):
         self.mini_rect = self.rect.inflate(-50, -50)  # padding
@@ -39,7 +41,6 @@ class Interface(MySprite):
 
 
 class Box(Interface):
-    instances = pygame.sprite.Group()  # subset of Interface.instances
 
     def __init__(self, rect=(0, 0, W, H), name=None, color='orange', sticky=True, bind=None, weight=1):
         """
@@ -48,16 +49,14 @@ class Box(Interface):
         """
         self.words = OrderedGroup(name)  # made of Word()s
         self.word_list = []  # list of strings, in order. *All unique.
-
         self.bind = bind
 
         super().__init__(rect, name, color)
-        # self.bind
-
-            # overrides
-
 
         self.sticky = sticky
+
+        self.update()
+        # print('interface', name, len(self.groups()))
 
     def update(self):
         super().update()
@@ -89,10 +88,26 @@ class InputBox(Box):
     def __init__(self, rect=(0, 0, W, H), bind=None):
         super().__init__(rect, 'input', 'light blue', sticky=False, bind=bind)
 
-    def update(self):
-        super().update()
-
 
 class WordBox(Box):
     def __init__(self, name, color='light green', rect=(0, 0, W, H), bind=None):
         super().__init__(rect, name, color, sticky=True, bind=bind)
+
+
+class MyMouse(MySprite):
+    def __init__(self, *groups):
+        super().__init__('mouse', (0, 0, 50, 50), *groups)
+
+        self.font = self.set_font_size(50)
+
+        self.rect = self.image.get_rect()
+
+    def draw_me(self):
+        self.image = self.font.render('({}, {})'.format(self.x, self.y), True, 'blue')
+
+    def update(self):
+        # print(self.groups())
+        self.x, self.y = pygame.mouse.get_pos()
+        super().update()
+        self.rect.update([self.x, self.y], self.image.get_size())
+        # if not

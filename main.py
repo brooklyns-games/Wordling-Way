@@ -7,16 +7,12 @@ from menu import *
 
 pygame.init()
 
-
-
-
 objectives = {()}
 
 SCREEN = pygame.display.set_mode((W, H))
 CLOCK = pygame.time.Clock()
-
+test_instances(Button)
 input_box = InputBox([0, 0, W, H * 2 / 3, ])
-
 wordboxes = Interface([0, int(H * 2 / 3), W, (H / 3)], name='word boxes')
 verb = WordBox('verb', 'light green', bind=wordboxes)  # optimize calculations
 noun = WordBox('noun', 'magenta', bind=wordboxes)
@@ -35,8 +31,11 @@ word_bank = {Word(i, cat, input_box) for cat, val in make_words.items() for i in
 # ok_button = Button('OK', input_box, menu, rect=(0, 0, 200, 100), align='right')
 ok_button = OKButton(input_box, menu)
 
+utilities = pygame.sprite.Group()
+mymouse = MyMouse()
 
-while True:
+done = False
+while not done:
     # mouse_pressed = False
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -44,14 +43,14 @@ while True:
             raise SystemExit
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            for button in Button.buttons:
+            print(Button.instances.list_names())
+            for button in Button.instances:
                 if button.hovering:  # there will be a 1-tick delay because not updated()
-
                     button.add(clicking)
                     button.set_click(True)
 
         if event.type == pygame.MOUSEBUTTONUP:
-            for button in Button.buttons:  # every button is set to False
+            for button in Button.instances:  # every button is set to False
                 button.set_click(False)
                 clicking.empty()
 
@@ -61,17 +60,22 @@ while True:
     # override :)
     mouse_pressed = pygame.mouse.get_pressed()[0]  # until mousebutton up
 
+    Interface.instances.update()
     Word.instances.update()
     Box.instances.update()  # which should come first?
     menu.update()  # should go last
 
+    utilities.update()
+
     SCREEN.fill('pink')
-
     # Box.instances.draw(SCREEN)  # boxes
-    Interface.instances.draw(SCREEN)  # boxes and menus
+    Interface.instances.draw(SCREEN)  # boxes and menus  todo find
     Word.instances.draw(SCREEN)  # words
-
     menu.draw(SCREEN)
+
+    utilities.update()
 
     pygame.display.flip()
     CLOCK.tick(60)
+
+print('Goodbye!')
