@@ -78,6 +78,8 @@ class Parser:
     def __init__(self, *words):
         self.words = words
 
+        print(self.words)
+
 
 class Quest:
     def __init__(self, *words, name, desc):

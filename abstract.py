@@ -27,40 +27,24 @@ def test_instances(klass):
     print(len(klass.instances), klass.instances.list_names())
 
 
-class MySprite(pygame.sprite.Sprite, ABC):
-    instances = OrderedGroup()  # pygame.sprite.Group()
-
+class Thing(pygame.sprite.Sprite, ABC):
     def __init__(self, name, rect, *groups):
-        # print(type(self), name, groups)
-        super().__init__(*groups, )
-        # self.__class__.instances
-        # self.self_group(self)
-
-        self.name = name  # name or string
+        super().__init__(*groups)
+        self.name = name
         self.rect = pygame.Rect(rect)
+        self.x, self.y = self.rect.topleft
         self.image = self.get_transparent_surface(self.rect.size)
-        self.x, self.y = 0, 0
 
-        self.font = pygame.font.SysFont(None, 80)
+        self.font = self.set_font_size(80)
 
-        # self.box = box
-
-    @classmethod
-    def self_group(cls, instance):
-        print('\tadding', cls, len(cls.instances))
-        cls.instances.add(instance)
-        # print(len(cls.instances))
-
-    def on_screen(self, screen):
-        return not screen.contains(self.rect)
+    def get_transparent_surface(self, size):
+        return pygame.Surface(size, pygame.SRCALPHA, 32)
 
     def set_font_size(self, size):
         """I can't remember font syntax"""
         self.font = pygame.font.SysFont(None, size)
         return self.font
 
-    def get_transparent_surface(self, size):
-        return pygame.Surface(size, pygame.SRCALPHA, 32)
 
     @abstractmethod
     def draw_me(self):
@@ -69,6 +53,38 @@ class MySprite(pygame.sprite.Sprite, ABC):
     @abstractmethod
     def update(self):
         self.draw_me()
+
+
+class MySprite(Thing, ABC):
+    instances = OrderedGroup()  # pygame.sprite.Group()
+
+    def __init__(self, name, rect, *groups):
+        # print(type(self), name, groups)
+        super().__init__(name, rect, *groups, )
+
+        self.font = pygame.font.SysFont(None, 80)
+
+        # self.box = box
+
+    @classmethod
+    def self_group(cls, instance):
+        # print('\tadding', cls, len(cls.instances))
+        cls.instances.add(instance)
+        # print(len(cls.instances))
+
+    def on_screen(self, screen):
+        return not screen.contains(self.rect)
+
+
+# class MyEvent(pygame.event.Event):
+#     def __init__(self, t, dic):
+#         super().__init__(t, dic)
+
+
+
+
+
+
 
 
 

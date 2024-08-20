@@ -5,13 +5,14 @@ from words import *
 from button import *
 from menu import *
 
+import usefuls
+
 pygame.init()
 
 objectives = {()}
 
 SCREEN = pygame.display.set_mode((W, H))
 CLOCK = pygame.time.Clock()
-test_instances(Button)
 input_box = InputBox([0, 0, W, H * 2 / 3, ])
 wordboxes = Interface([0, int(H * 2 / 3), W, (H / 3)], name='word boxes')
 verb = WordBox('verb', 'light green', bind=wordboxes)  # optimize calculations
@@ -32,18 +33,42 @@ word_bank = {Word(i, cat, input_box) for cat, val in make_words.items() for i in
 ok_button = OKButton(input_box, menu)
 
 utilities = pygame.sprite.Group()
-mymouse = MyMouse()
+mymouse = usefuls.MyMouse(utilities)
 
+make_command = pygame.event.custom_type()
+new_command = pygame.event.custom_type()
+# pygame.time.set_timer(pygame.event.Event(make_command), int(1000/50), loops=len(usefuls.COMMANDS) - 1)  # extra precaution for index
+
+# pygame.event.set_blocked([pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN])
+
+ticks = 0
+tick_range = 0
 done = False
 while not done:
-    # mouse_pressed = False
+
+    # blocked = False
+    pygame.event.post(pygame.event.Event(make_command))  # each run checks
+
+    # v delete this?
+    if pygame.event.get(make_command):  # (pygame.time.get_ticks() % 100) < 500 < abs(pygame.time.get_ticks() - tick_range):
+        if ticks < len(usefuls.COMMANDS):
+            myevent = usefuls.COMMANDS[ticks]  # at least one tick must go by
+            ticks += 1
+
+            pygame.event.clear()
+            myevent.post()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             raise SystemExit
 
+        # v distinguishes Command events and User-generated events
+        if event.type == pygame.MOUSEMOTION and 'command' in event.__dict__:
+            pygame.mouse.set_pos(event.pos)
+
+
         if event.type == pygame.MOUSEBUTTONDOWN:
-            print(Button.instances.list_names())
+            mymouse.click()
             for button in Button.instances:
                 if button.hovering:  # there will be a 1-tick delay because not updated()
                     button.add(clicking)
@@ -54,11 +79,13 @@ while not done:
                 button.set_click(False)
                 clicking.empty()
 
-        if event == message_ok:
-            print(input_box.words.list_names())
+        if pygame.event.get(message_ok):
+            # print('', input_box.words.list_names())
             Parser(input_box.words.list_names())
-    # override :)
-    mouse_pressed = pygame.mouse.get_pressed()[0]  # until mousebutton up
+
+    MOUSEPRESSED = pygame.mouse.get_pressed()[0]  # until mousebutton up
+    MOUSEPOSITION = pygame.mouse.get_pos()
+    mymouse.set_coords(*MOUSEPOSITION)  # reason mouse does not update unless moved
 
     Interface.instances.update()
     Word.instances.update()
@@ -73,9 +100,11 @@ while not done:
     Word.instances.draw(SCREEN)  # words
     menu.draw(SCREEN)
 
-    utilities.update()
+    utilities.draw(SCREEN)
 
     pygame.display.flip()
+    # ticks += 1
     CLOCK.tick(60)
+
 
 print('Goodbye!')

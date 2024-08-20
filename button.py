@@ -105,7 +105,8 @@ class OKButton(Button):
         self.at_mouse = False
 
     def click(self):
-        pygame.event.post(message_ok)
+        # print('clicked')
+        pygame.event.post(pygame.event.Event(message_ok))
 
         for sprite in self.box.words.sprites():
             sprite.toggle_box()
@@ -116,6 +117,6 @@ class OKButton(Button):
 # test_instances(Button)
 
 
-message_ok = pygame.event.Event(pygame.USEREVENT + 1)
+message_ok = pygame.USEREVENT + 1
 
 clicking = pygame.sprite.GroupSingle()

@@ -1,7 +1,7 @@
 import pygame
 from globs import *
 from words import *
-from abstract import OrderedGroup, MySprite
+from abstract import OrderedGroup, MySprite, Thing
 
 # pygame.font.init()
 
@@ -56,7 +56,6 @@ class Box(Interface):
         self.sticky = sticky
 
         self.update()
-        # print('interface', name, len(self.groups()))
 
     def update(self):
         super().update()
@@ -94,20 +93,3 @@ class WordBox(Box):
         super().__init__(rect, name, color, sticky=True, bind=bind)
 
 
-class MyMouse(MySprite):
-    def __init__(self, *groups):
-        super().__init__('mouse', (0, 0, 50, 50), *groups)
-
-        self.font = self.set_font_size(50)
-
-        self.rect = self.image.get_rect()
-
-    def draw_me(self):
-        self.image = self.font.render('({}, {})'.format(self.x, self.y), True, 'blue')
-
-    def update(self):
-        # print(self.groups())
-        self.x, self.y = pygame.mouse.get_pos()
-        super().update()
-        self.rect.update([self.x, self.y], self.image.get_size())
-        # if not
