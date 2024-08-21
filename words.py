@@ -4,6 +4,8 @@ from button import *
 from globs import *
 from abstract import *
 
+from menu import *
+
 
 class Word(MySprite):
     words = OrderedGroup()  # needs a new init because ref is too broad
@@ -19,6 +21,26 @@ class Word(MySprite):
     def update(self):
         # print('sdfdf', self.image)
         super().update()
+
+    """('Crazy? I was crazy once. They locked me in a room. 
+    A rubber room. A rubber room with rats. An rats make me crazy.')"""
+
+class Scene:
+    # data-based class, not a sprite, more like a brain
+    def __init__(self, words: str, box: WriteBox):
+        self.words = words
+        self.box = box  # must be write box
+    def write(self):
+        words = {Word(i, self.box) for i in self.words.split(' ')}
+
+# try xml, research
+
+
+MAP = [Scene('yo', box=scene_box)]
+
+
+
+
 
 class Parser:
     def __init__(self, *words):

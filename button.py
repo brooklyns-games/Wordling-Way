@@ -107,7 +107,8 @@ class WordBubble(Button):
 
         self.box = other  # the switch
 
-        self.update_index()  # update all boxes .words?
+        # should update in self.update() automatically
+        # self.update_index()  # update all boxes .words?
 
         return self.box
 
@@ -136,6 +137,8 @@ class OKButton(Button):
     def __init__(self, interface, *groups):
         super().__init__('OK ->', interface, *groups, align='right', mode='event')
         self.at_mouse = False
+
+        self.box.words.remove(self)  # to not mess up formatting
 
     def click(self):
         # print('clicked')

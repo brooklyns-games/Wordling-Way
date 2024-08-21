@@ -7,7 +7,8 @@ import usefuls
 
 # pygame.font.init()
 
-
+# What is the difference between Interface and Box??
+# Interfaces can be groups for boxes
 class Interface(Thing):
     instances = pygame.sprite.Group()
     def __init__(self, rect=(0, 0, W, H), name=None, color='light blue'):
@@ -63,7 +64,8 @@ class Box(Interface):
 
         self.update()
 
-
+    def clear(self):
+        self.words.clear()
     def update(self):
 
         super().update()
@@ -75,7 +77,6 @@ class Box(Interface):
     def get_index(self, sprite):
         """Returns where the sprite is inside the group. Sticky list sprites always have the same place.
         This runs outside of self.update(), called by a self.words item"""
-        self.update()  # words_list and words must sync!
         if not self.write_format:  # list format
             if len(self.words) > 0:
                 if not self.sticky:
@@ -86,45 +87,53 @@ class Box(Interface):
             else:
                 return 0, 0  # Sprite() super() adds groups after init, so it doesn't register yet?
         else:
-
             widths = {word: word.rect.width for word in self.words}  # important to be in order
-            # pseduo
             acc = 0
             row = 0
             for word, width in widths.items():
                 widths[word] = acc  # x position
                 acc += width
-
                 if acc > self.rect.width:
-                    print(acc, word.name)
-
                     widths[word] = 0
                     acc = 0 + width
                     row += 1
                     self.rows.append([])  # new row
                 self.rows[-1].append(word)
-
-            self.positions = {word: (widths[word], usefuls.find3d(word, self.rows) * word.rect.height) for word in self.words}
-
-            # print(self.positions[sprite])
+            self.positions = {word: (widths[word], usefuls.find3d(word, self.rows) * word.rect.height)
+                              for word in self.words}
             return self.positions[sprite]
 
-class SceneBox(Box):
-    def __init__(self, rect=(0, 0, W, H), bind=None):
-        super().__init__(rect, 'scene', 'orange', sticky=False, bind=bind)
+
+class WriteBox(Box, ABC):
+    def __init__(self, name, rect=(0, 0, W, H), bind=None):
+        super().__init__(rect, name, 'white', sticky=False, bind=bind)
         self.write_format = True
+
+
+class SceneBox(WriteBox):
+    def __init__(self, rect=(0, 0, W, H), bind=None):
+        super().__init__('scene', rect, bind)
+        self.color = 'orange'
+
+
+class InputBox(WriteBox):
+    def __init__(self, rect=(0, 0, W, H), bind=None):
+        super().__init__('input', rect, bind)
+        self.color = 'light blue'
+
     def update(self):
         super().update()
-        print(self.words.list_names())
-
-class InputBox(Box):
-    def __init__(self, rect=(0, 0, W, H), bind=None):
-        super().__init__(rect, 'input', 'light blue', sticky=False, bind=bind)
-        self.write_format = True
+        # print(self.words.list_names())
 
 
 class WordBox(Box):
     def __init__(self, name, color='light green', rect=(0, 0, W, H), bind=None):
         super().__init__(rect, name, color, sticky=True, bind=bind)
 
-print(Interface.instances)
+
+scene_box = SceneBox((0, 0, W, H / 3))
+input_box = InputBox([0, H / 3, W, H / 3, ])
+
+wordboxes = Interface([0, int(H * 2 / 3), W, (H / 3)], name='word boxes')
+verb = WordBox('verb', 'light green', bind=wordboxes)  # optimize calculations
+noun = WordBox('noun', 'magenta', bind=wordboxes)

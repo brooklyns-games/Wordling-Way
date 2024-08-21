@@ -14,14 +14,9 @@ objectives = {()}
 SCREEN = pygame.display.set_mode((W, H))
 CLOCK = pygame.time.Clock()
 
-scene_box = SceneBox((0, 0, W, H / 3))
-input_box = InputBox([0, H / 3, W, H / 3, ])
 
-wordboxes = Interface([0, int(H * 2 / 3), W, (H / 3)], name='word boxes')
-verb = WordBox('verb', 'light green', bind=wordboxes)  # optimize calculations
-noun = WordBox('noun', 'magenta', bind=wordboxes)
 
-print(Interface.instances.sprites())
+# print(Interface.instances.sprites())
 
 #...add as csv ****
 # set(dict('word type': [strings]), dict(...), dict(...),...)
@@ -30,8 +25,7 @@ make_words = {
     noun: {'me', 'you', 'what', 'this'}
 }
 word_bank = {WordBubble(i, cat, input_box) for cat, val in make_words.items() for i in val}
-words = {Word(i, scene_box) for i in ('Crazy? I was crazy once. They locked me in a room. '
-                                      'A rubber room. A rubber room with rats. An rats make me crazy.').split(' ')}
+
 
 # test = Word('go', verb)
 # ok_button = Button('OK', input_box, menu, rect=(0, 0, 200, 100), align='right')
@@ -41,13 +35,10 @@ utilities = pygame.sprite.Group()
 mymouse = usefuls.MyMouse(utilities)
 
 make_command = pygame.event.custom_type()
-new_command = pygame.event.custom_type()
-# pygame.time.set_timer(pygame.event.Event(make_command), int(1000/50), loops=len(usefuls.COMMANDS) - 1)  # extra precaution for index
-
-# pygame.event.set_blocked([pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN])
+# new_command = pygame.event.custom_type()
+MAP[0].write()
 
 ticks = 0
-tick_range = 0
 done = False
 while not done:
 
@@ -89,9 +80,10 @@ while not done:
         if pygame.event.get(message_ok):
             # print('', input_box.words.list_names())
             inpt = []
-            for bubble in input_box.words.list_names():
+            for bubble in input_box.words.sprite_list:
+                # print(bubble)
                 if type(bubble) is WordBubble:
-                    inpt.append(bubble)
+                    inpt.append(bubble.name)
 
             Parser(*inpt)
 

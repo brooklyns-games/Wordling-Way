@@ -15,7 +15,7 @@ class OrderedGroup(pygame.sprite.AbstractGroup):  # not pygame.sprite.Group
         # print(self.sprites(), len(self.sprites()) == len(self.sprite_list))
 
     def list_names(self):  #  __str__?
-        return str(list(i.name for i in self.sprite_list))
+        return list(i.name for i in self.sprite_list)
 
     def get_order(self, sprite):
         # print(self.name, sprite.string, len(self), self.has(sprite))
@@ -100,10 +100,10 @@ class MySprite(Thing, ABC):
         self.image = self.draw_text(self.image)
         return self.image
 
-    def update_index(self):  # everything is clumped because self.index = 0
-        # print('update index', self.__class__, self.box)
-        self.index = self.box.get_index(self)
-        return self.index
+    # def update_index(self):  # everything is clumped because self.index = 0
+    #     # print('update index', self.__class__, self.box)
+    #     self.index = self.box.get_index(self)
+    #     return self.index
 
     def default_xy(self):
         # print('default xy')  # does not show
