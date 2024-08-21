@@ -1,43 +1,25 @@
 import pygame
-from abstract import MySprite, test_instances
+from abstract import MySprite, OrderedGroup
 
 menu = pygame.sprite.Group()
 
 class Button(MySprite):
+    buttons = OrderedGroup()
+    def __init__(self, string, interface, *groups, align='left', mode='toggle'):
+        super().__init__(string, interface, *groups, Button.buttons, rect=(0, 0, 100, 50))  # groups adding
+        self.font = self.set_font_size(int(self.rect.height * 1.5))
 
-    def __init__(self, string, interface, *groups, rect=(0, 0, 100, 50), align='left', mode='toggle'):
-        # self.string = string
-        # print('new', string, type(self))
-        super().__init__(string, rect, *groups, Button.instances)  # groups adding
-        # add interface.items
-        self.box = interface
-
-
-        self.mode = mode
-        """modes: toggle, event, slider"""
-
-        # self.rect = pygame.Rect(rect)
-        # self.image = self.get_transparent_surface(self.rect.size)
-
-        self.align = align
-        # self.x, self.y = 0, 0  # self.default_xy()
-
-        self.color = 'green'
-
+        self.mode = mode  # modes: toggle, event, slider"""
         self.at_mouse = True
+        self.align = align
+
         self.state = False
         self.hovering = False
         self.clicked = False
 
-        self.font = pygame.font.SysFont(None, int(self.rect.height * 1.5))
-
     def draw_me(self):
-        self.image = self.get_transparent_surface(self.rect.size)
-        # self.image.set_alpha(0)
+        self.image = self.draw_text(self.image)
         pygame.draw.rect(self.image, self.color, self.rect, 5, border_radius=15)
-
-        text = self.font.render(str(self.name), True, self.color)
-        self.image.blit(text, text.get_rect())
         return self.image
 
     def click(self):
@@ -77,15 +59,16 @@ class Button(MySprite):
         return self.color
 
     def default_xy(self):
+
         if self.align == 'left':
-            return self.x, self.y
+            # print('button default xy', super().default_xy())
+            return super().default_xy()
         elif self.align == 'right':
-            return self.box.rect.width - self.image.get_width(), self.box.rect.height - self.image.get_height()
+            return self.box.rect.x + self.box.rect.width - self.image.get_width(), self.box.rect.y + self.box.rect.height - self.image.get_height()
 
     def update(self):
-        super().update()
+        # super().update()
         self.check_click()  # pygame.mouse.get_pressed()[0]
-        # self.string = str(self.state)
         # Updating rect
         if self.at_mouse and self.clicked:
             x2, y2 = pygame.mouse.get_rel()
@@ -93,10 +76,60 @@ class Button(MySprite):
             self.y += y2
         else:
             self.x, self.y = self.default_xy()
+        super().update()
 
-        # print(self.rect, type(self.rect))
-        self.rect.update([self.x, self.y], self.image.get_size())
-        # print(Button.instances.list_names())
+
+class WordBubble(Button):
+    def __init__(self, string, word_box, input_box):
+        # print(string, word_box.words)
+        # print(self.box.words)
+        # self.string = string
+        super().__init__(string, word_box, mode='event')  # this adds to self.box.items
+        # Word.__init__(self, string, word_box)
+        # For initialization
+        self.word_box = self.box
+        self.input_box = input_box
+        self.available_boxes = (self.word_box, input_box)  # idk if this can be used
+
+    def toggle_box(self):
+        """switches between default box and input box. adds 1 self """
+        # print('toggling')
+        other = None
+        if self.box == self.word_box:
+            other = self.input_box
+        elif self.box == self.input_box:
+            other = self.word_box
+        else:
+            raise ValueError
+
+        self.box.words.remove(self)
+        other.words.add(self)  # chill
+
+        self.box = other  # the switch
+
+        self.update_index()  # update all boxes .words?
+
+        return self.box
+
+    def set_click(self, switch):
+        super().set_click(switch)
+        if not switch:
+            self.state = False
+
+    def click(self):
+        if not self.state:
+            # print('toggle', self.clicked, self.state)
+            self.toggle_box()
+            self.state = True
+
+    # def update_rect(self):
+    #     pass
+
+        # pygame.draw.rect(self.image, self.color, ([0, 0], self.image.get_size()), 5, border_radius=15)
+
+    def update(self):
+        # print(self.box)
+        super().update()
 
 
 class OKButton(Button):
@@ -109,12 +142,12 @@ class OKButton(Button):
         pygame.event.post(pygame.event.Event(message_ok))
 
         for sprite in self.box.words.sprites():
-            sprite.toggle_box()
+            if type(sprite) is WordBubble:
+                sprite.toggle_box()
 
     def set_click(self, switch):
         super().set_click(switch)
 
-# test_instances(Button)
 
 
 message_ok = pygame.USEREVENT + 1

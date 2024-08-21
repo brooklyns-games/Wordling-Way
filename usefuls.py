@@ -2,6 +2,21 @@ import pygame
 
 from abstract import Thing
 
+def find3d(target, lst, comp='=='):
+    """
+
+    :param target:
+    :param lst:
+    :param comp: not built yet
+    :return: int() index of row where target was found
+    """
+    for x in range(len(lst)):
+        for y in lst[x]:
+            if y == target:
+                return x
+    else:
+        return False
+
 class MyMouse(Thing):
     def __init__(self, *groups):
         super().__init__('mouse', (0, 0, 50, 50), *groups)
@@ -16,13 +31,15 @@ class MyMouse(Thing):
 
     def draw_me(self):
         self.image = self.font.render('({}, {})'.format(self.x, self.y), True, 'blue')
+        return self.image
 
     def set_coords(self, x, y):
         self.x, self.y = x, y
 
     def update(self):
-        self.draw_me()
-        self.rect.update([self.x, self.y], self.image.get_size())
+        super().update()
+        # self.draw_me()
+        # self.rect.update([self.x, self.y], self.image.get_size())
 
 
 class MyEvent:
@@ -48,16 +65,19 @@ class MyEvent:
                 self.t(self.dic)
 
 COMMANDS = [
+    MyEvent(pygame.MOUSEBUTTONUP, {})
 ]
-
-for coords in [(61, 512),
+plain_mouse_check = [(61, 512),
                (62, 573), (35, 629), (28, 679), (653, 498), (664, 568), (627, 633),
                (645, 684), (51, 28), (51, 28), (51, 28), (51, 28), (51, 28), (51, 28), (51, 28), (51, 28), (44, 502),
                (44, 502), (55, 556), (41, 634), (29, 677), (630, 506), (645, 576), (642, 637), (664, 678),
-               (1126, 441)]:
+               (1126, 441)]
+this_bug = [(0, 0)]
+for coords in this_bug:
     COMMANDS += [MyEvent(pygame.MOUSEMOTION, {'pos': coords}),  # MyEvent(pygame.mouse.set_pos, coords),
                  MyEvent(pygame.MOUSEBUTTONDOWN, {}),
                  MyEvent(pygame.MOUSEBUTTONUP, {})]
+MODE = True
 
 """
 x set visible()
