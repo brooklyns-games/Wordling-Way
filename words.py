@@ -1,5 +1,5 @@
 import pygame
-
+import re
 from button import *
 from globs import *
 from abstract import *
@@ -29,17 +29,48 @@ class Scene:
     # data-based class, not a sprite, more like a brain
     def __init__(self, words: str, box: WriteBox):
         self.words = words
-        self.box = box  # must be write box
+        self.box = box
+
+        # keywords = re.findall('^<*>', self.words)  # <*>'
+        # print(keywords)
+
+    def is_key(self, string):
+        # print(string)
+        if not all(x in string for x in ('<', '>')):
+            return False
+        left = string.index('<')
+        right = string.index('>')
+        if right >= left:
+            # print(string[left + 1:right])
+            return string[left + 1:right]
+        # return string.startswith('<') and string.endswith('>')
+
     def write(self):
-        words = {Word(i, self.box) for i in self.words.split(' ')}
+        words = set()
+        for i in self.words.split(' '):
+            name = self.is_key(i)
+            if not name:
+                words.add(Word(i, self.box))
+            else:
+
+                if name in word_dict:
+                    cat = word_dict[name].cat
+                else:
+                    cat = None
+                words.add(WordBubble(name, self.box, cat, cat=cat))
 
 # try xml, research
+#...add as csv ****
+# set(dict('word type': [strings]), dict(...), dict(...),...)
+make_words = {
+    verb: {'go', 'eat', 'make', 'give', },
+    noun: {'me', 'you', 'what', 'this', 'pickle'}
+}
+word_bank = {WordBubble(i, cat, input_box, cat=cat, spawn=False) for cat, val in make_words.items() for i in val}
+word_dict = {sprite.name: sprite for sprite in word_bank}
+# levels
 
-
-MAP = [Scene('yo', box=scene_box)]
-
-
-
+MAP = [Scene("It seems that you are in a <pickle>...", box=scene_box)]
 
 
 class Parser:

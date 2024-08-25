@@ -14,21 +14,9 @@ objectives = {()}
 SCREEN = pygame.display.set_mode((W, H))
 CLOCK = pygame.time.Clock()
 
+BACKGROUND = pygame.Surface((W, H))
+BACKGROUND.fill('pink')
 
-
-# print(Interface.instances.sprites())
-
-#...add as csv ****
-# set(dict('word type': [strings]), dict(...), dict(...),...)
-make_words = {
-    verb: {'go', 'eat', 'make', 'give', },
-    noun: {'me', 'you', 'what', 'this'}
-}
-word_bank = {WordBubble(i, cat, input_box) for cat, val in make_words.items() for i in val}
-
-
-# test = Word('go', verb)
-# ok_button = Button('OK', input_box, menu, rect=(0, 0, 200, 100), align='right')
 ok_button = OKButton(input_box, menu)
 
 utilities = pygame.sprite.Group()
@@ -63,7 +51,6 @@ while not done:
         if event.type == pygame.MOUSEMOTION and 'command' in event.__dict__:
             pygame.mouse.set_pos(event.pos)
 
-
         if event.type == pygame.MOUSEBUTTONDOWN:
             mymouse.click()
             for button in Button.buttons:
@@ -71,11 +58,13 @@ while not done:
                     # print(button)
                     button.add(clicking)
                     button.set_click(True)
+                    button.dirty = 1
 
         if event.type == pygame.MOUSEBUTTONUP:
             for button in Button.buttons:  # every button is set to False
                 button.set_click(False)
                 clicking.empty()
+                button.dirty = 1
 
         if pygame.event.get(message_ok):
             # print('', input_box.words.list_names())
@@ -87,30 +76,24 @@ while not done:
 
             Parser(*inpt)
 
-    MOUSEPRESSED = pygame.mouse.get_pressed()[0]  # until mousebutton up
-    MOUSEPOSITION = pygame.mouse.get_pos()
-    mymouse.set_coords(*MOUSEPOSITION)  # reason mouse does not update unless moved
+    usefuls.MOUSEPRESSED = pygame.mouse.get_pressed()[0]  # until mousebutton up
+    usefuls.MOUSEPOSITION = pygame.mouse.get_pos()
+    usefuls.MOUSEREL = pygame.mouse.get_rel()
+    mymouse.set_coords(*usefuls.MOUSEPOSITION)  # reason mouse does not update unless moved
 
-    Interface.instances.update()
-    Button.buttons.update()
-    Word.words.update()
-    # Box.instances.update()  # which should come first?
-    menu.update()  # should go last
+    ALLSPRITES.update()
+
 
     utilities.update()
 
-    SCREEN.fill('pink')
-    # Box.instances.draw(SCREEN)  # boxes
-    Interface.instances.draw(SCREEN)  # boxes and menus  todo find
-    Button.buttons.draw(SCREEN)
-    Word.words.draw(SCREEN)
-    # WordBubble.instances.draw(SCREEN)  # words
-    menu.draw(SCREEN)
+    """Drawing """
+    ALLSPRITES.clear(SCREEN, BACKGROUND)
+    dirty_rects = ALLSPRITES.draw(SCREEN)
 
     utilities.draw(SCREEN)
 
-    pygame.display.flip()
-    # ticks += 1
+    pygame.display.update(dirty_rects)
+    # pygame.display.flip()
     CLOCK.tick(60)
 
 

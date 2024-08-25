@@ -26,8 +26,12 @@ class MyMouse(Thing):
         self.rect = self.image.get_rect()
         self.coords = []
 
+        self.display = False
+
     def click(self):
         self.coords.append((self.x, self.y))
+        if self.display:
+            print(self.coords)
 
     def draw_me(self):
         self.image = self.font.render('({}, {})'.format(self.x, self.y), True, 'blue')
@@ -38,6 +42,7 @@ class MyMouse(Thing):
 
     def update(self):
         super().update()
+        self.dirty = 1
         # self.draw_me()
         # self.rect.update([self.x, self.y], self.image.get_size())
 
@@ -46,8 +51,6 @@ class MyEvent:
     def __init__(self, t, dic):
         self.t = t
         self.dic = dic
-
-        # self.event = pygame.event.custom_type(pygame.event.Event(self.t, a='1'))
 
     def post(self):
         # print('self.t', self.t)
@@ -72,12 +75,16 @@ plain_mouse_check = [(61, 512),
                (645, 684), (51, 28), (51, 28), (51, 28), (51, 28), (51, 28), (51, 28), (51, 28), (51, 28), (44, 502),
                (44, 502), (55, 556), (41, 634), (29, 677), (630, 506), (645, 576), (642, 637), (664, 678),
                (1126, 441)]
-this_bug = [(0, 0)]
+this_bug = [(506, 20)]
 for coords in this_bug:
     COMMANDS += [MyEvent(pygame.MOUSEMOTION, {'pos': coords}),  # MyEvent(pygame.mouse.set_pos, coords),
                  MyEvent(pygame.MOUSEBUTTONDOWN, {}),
                  MyEvent(pygame.MOUSEBUTTONUP, {})]
 MODE = True
+
+MOUSEPRESSED = None  # until mousebutton up
+MOUSEPOSITION = None
+MOUSEREL = None
 
 """
 x set visible()

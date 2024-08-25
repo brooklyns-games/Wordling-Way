@@ -1,5 +1,6 @@
 import pygame
 from abc import ABC, abstractmethod
+from typing import Union
 pygame.font.init()
 
 class OrderedGroup(pygame.sprite.AbstractGroup):  # not pygame.sprite.Group
@@ -17,31 +18,34 @@ class OrderedGroup(pygame.sprite.AbstractGroup):  # not pygame.sprite.Group
     def list_names(self):  #  __str__?
         return list(i.name for i in self.sprite_list)
 
-    def get_order(self, sprite):
+    def get_order(self, sprite: pygame.sprite.Sprite):
         # print(self.name, sprite.string, len(self), self.has(sprite))
         order = dict(enumerate(self.sprite_list))
         reverse_order = {j: i for i, j in order.items()}
         return reverse_order[sprite]
 
+    # def draw_me(self, surface):
+    #     super().draw(surface)
+
+
 def test_instances(klass):
     # if klass
     print(len(klass.instances), klass.instances.list_names())
 
+def get_transparent_surface(size):
+    return pygame.Surface(size, pygame.SRCALPHA, 32)
 
-class Thing(pygame.sprite.Sprite, ABC):
+class Thing(pygame.sprite.DirtySprite, ABC):
     # instances =
-    def __init__(self, name, rect, *groups):
-        super().__init__(*groups)
+    def __init__(self, name: str, rect: Union[list, tuple, pygame.Rect], *groups):
+        super().__init__(*groups, ALLSPRITES)
         # test_instances(Button)
         self.name = name
         self.rect = pygame.Rect(rect)
         self.x, self.y = self.rect.topleft
-        self.image = self.get_transparent_surface(self.rect.size)
+        self.image = get_transparent_surface(self.rect.size)
 
         self.font = self.set_font_size(40)
-
-    def get_transparent_surface(self, size):
-        return pygame.Surface(size, pygame.SRCALPHA, 32)
 
     def set_font_size(self, size):
         """I can't remember font syntax"""
@@ -49,7 +53,6 @@ class Thing(pygame.sprite.Sprite, ABC):
         return self.font
 
     def update_rect(self):
-        # print(self.image)
         self.rect.update([self.x, self.y], self.image.get_size())
         return self.rect
 
@@ -62,37 +65,45 @@ class Thing(pygame.sprite.Sprite, ABC):
         self.image = self.draw_me()
         self.update_rect()
 
+        # self.dirty = 1
+
+
 
 
 class MySprite(Thing, ABC):
     # instances = OrderedGroup()  # pygame.sprite.Group()
 
-    def add_instance(self):
-        self.__class__.instances = self.__class__.instances.copy()
-        self.__class__.instances.add(self)
-
-    def __init__(self, name, box, *groups, rect=(0, 0, 50, 50)):
-        from button import Button
+    def __init__(self, name, box, *groups, spawn=True, ):
+        rect = (0, 0, 50, 50)
         """
 
         :param name: str() text that appears onscreen
-        :param rect:
         :param box: Box() or Interface() (?) item that it is located
         :param groups:
         """
         self.font = self.set_font_size(60)
         self.rect = pygame.Rect([0, 0], self.font.size(name))
-        super().__init__(name, self.rect, *groups, box.words, )
+        super().__init__(name, self.rect, *groups)
+        if spawn:
+            box.words.add(self)
+            # print('added', self.name)
+
         self.box = box
+        # self.loc = pygame.sprite.GroupSingle(self.box.words)
+
         self.color = 'black'
         self.index = 0
+
+        self.hide = False
+
+    def spawn_at(self):
+        pass
 
     def draw_text(self, surface, fit=False):
         text = self.font.render(self.name, True, self.color)
         if type(surface) is not pygame.Surface:
             surface = pygame.Surface(surface)
         surface.blit(text, text.get_rect())
-        # print('word draw')
 
         return surface.copy()
 
@@ -100,17 +111,9 @@ class MySprite(Thing, ABC):
         self.image = self.draw_text(self.image)
         return self.image
 
-    # def update_index(self):  # everything is clumped because self.index = 0
-    #     # print('update index', self.__class__, self.box)
-    #     self.index = self.box.get_index(self)
-    #     return self.index
-
     def default_xy(self):
-        # print('default xy')  # does not show
 
         box = self.box.rect
-        # self.update_index() - 0
-        # x, y = box.x, (box.y + (self.box.get_index(self)- 0) * 60)  # list format
         x, y = box.topleft
         x2, y2 = self.box.get_index(self)
         x += x2
@@ -118,9 +121,15 @@ class MySprite(Thing, ABC):
         return x, y
 
     def update(self):
+        # self.loc = pygame.sprite.GroupSingle(self.box.words)
 
+        # if self.hide:
+        #     self.box.words.sprite.remove(self)
+        # else:
+        #     self.box.words.add(self)
         self.x, self.y = self.default_xy()
         super().update()
+        # self.dirty = 1
 
 
     # @classmethod
@@ -133,14 +142,7 @@ class MySprite(Thing, ABC):
         return not screen.contains(self.rect)
 
 
-# class MyEvent(pygame.event.Event):
-#     def __init__(self, t, dic):
-#         super().__init__(t, dic)
-
-
-
-
-
+ALLSPRITES = pygame.sprite.LayeredDirty()
 
 
 

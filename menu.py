@@ -1,7 +1,7 @@
 import pygame
 from globs import *
 from words import *
-from abstract import OrderedGroup, Thing
+from abstract import *
 
 import usefuls
 
@@ -10,7 +10,7 @@ import usefuls
 # What is the difference between Interface and Box??
 # Interfaces can be groups for boxes
 class Interface(Thing):
-    instances = pygame.sprite.Group()
+    instances = OrderedGroup()
     def __init__(self, rect=(0, 0, W, H), name=None, color='light blue'):
         super().__init__(name, rect, Interface.instances)
         # print('interface', name, len(self.groups()))
@@ -31,8 +31,9 @@ class Interface(Thing):
         self.image.fill(self.color)
         return self.image
 
-    # def update(self):
-    #     self.draw_me()
+    def update(self):
+        super().update()
+        # self.items.update()
 
     def get_rect(self, box):
         # I forgot what this does. Related to param bind?
@@ -47,25 +48,28 @@ class Interface(Thing):
 
 class Box(Interface):
 
-    def __init__(self, rect=(0, 0, W, H), name=None, color='orange', sticky=True, bind=None, weight=1):
+    def __init__(self, rect=(0, 0, W, H), name=None, color='orange',
+                 sticky: bool =True, bind: Interface =None, weight:float =1):
         """
         :param sticky: Removing a word does not affect positions
         :param bind: Interface(), overrides self.rect
         """
+
         self.words = OrderedGroup(name)  # made of Word()s
         self.bind = bind
 
         super().__init__(rect, name, color)
-        self.write_format = False
+        print(Interface.instances.list_names())
         self.sticky = sticky  # for non-text boxes
 
         self.rows = [[]]
         self.positions = {}
 
-        self.update()
+        # self.update()
 
-    def clear(self):
-        self.words.clear()
+    # def clear(self):
+    #     self.words.clear()  # should be not surface todo
+    # def
     def update(self):
 
         super().update()
@@ -74,40 +78,46 @@ class Box(Interface):
             self.add(self.bind.items)  # must be phrased to activate OrderedGroup.add_internal()
             self.rect = self.bind.get_rect(self)
 
-    def get_index(self, sprite):
+        # print(self.words.list_names())
+        # print('updating')
+        # self.words.update()
+
+    def get_index(self, sprite: MySprite):
         """Returns where the sprite is inside the group. Sticky list sprites always have the same place.
         This runs outside of self.update(), called by a self.words item"""
-        if not self.write_format:  # list format
-            if len(self.words) > 0:
-                if not self.sticky:
-                    return 0, self.words.list_names().index(sprite.name) * sprite.rect.height
-                else:
-                    # print(self.words.name, sprite.string, self.words.list_names(), len(self.words.sprites()))
-                    return 0, self.words.get_order(sprite) * sprite.rect.height
+
+        if len(self.words) > 0:
+
+            if not self.sticky:
+                return 0, self.words.list_names().index(sprite.name) * sprite.rect.height
             else:
-                return 0, 0  # Sprite() super() adds groups after init, so it doesn't register yet?
+                # print(self.words.name, sprite.string, self.words.list_names(), len(self.words.sprites()))
+                return 0, self.words.get_order(sprite) * sprite.rect.height
         else:
-            widths = {word: word.rect.width for word in self.words}  # important to be in order
-            acc = 0
-            row = 0
-            for word, width in widths.items():
-                widths[word] = acc  # x position
-                acc += width
-                if acc > self.rect.width:
-                    widths[word] = 0
-                    acc = 0 + width
-                    row += 1
-                    self.rows.append([])  # new row
-                self.rows[-1].append(word)
-            self.positions = {word: (widths[word], usefuls.find3d(word, self.rows) * word.rect.height)
-                              for word in self.words}
-            return self.positions[sprite]
+            return 0, 0  # Sprite() super() adds groups after init, so it doesn't register yet?
 
 
 class WriteBox(Box, ABC):
     def __init__(self, name, rect=(0, 0, W, H), bind=None):
         super().__init__(rect, name, 'white', sticky=False, bind=bind)
-        self.write_format = True
+
+    def get_index(self, sprite: MySprite):
+        widths = {word: word.rect.width for word in self.words}  # important to be in order
+        acc = 0
+        row = 0
+        # print(self.words.list_names())
+        for word, width in widths.items():
+            widths[word] = acc  # x position
+            acc += width
+            if acc > self.rect.width:
+                widths[word] = 0
+                acc = 0 + width
+                row += 1
+                self.rows.append([])  # new row
+            self.rows[-1].append(word)
+        self.positions = {word: (widths[word], usefuls.find3d(word, self.rows) * word.rect.height)
+                          for word in self.words}
+        return self.positions[sprite]
 
 
 class SceneBox(WriteBox):
@@ -121,14 +131,22 @@ class InputBox(WriteBox):
         super().__init__('input', rect, bind)
         self.color = 'light blue'
 
-    def update(self):
-        super().update()
+    # def update(self):
+    #     super().update()
         # print(self.words.list_names())
 
 
 class WordBox(Box):
     def __init__(self, name, color='light green', rect=(0, 0, W, H), bind=None):
         super().__init__(rect, name, color, sticky=True, bind=bind)
+
+        self.whitelist = self.words.copy()
+    # def update(self):
+    #     super().update()
+    #     for sprite in self.words:
+    #         if not self.whitelist.has(sprite):
+    #             self.words.remove(sprite)
+
 
 
 scene_box = SceneBox((0, 0, W, H / 3))
