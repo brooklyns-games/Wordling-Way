@@ -46,6 +46,10 @@ class Thing(pygame.sprite.DirtySprite, ABC):
         self.image = get_transparent_surface(self.rect.size)
 
         self.font = self.set_font_size(40)
+        # self.color = 'black'
+
+        # self.update()
+        self.dirty = 1
 
     def set_font_size(self, size):
         """I can't remember font syntax"""
@@ -127,7 +131,8 @@ class MySprite(Thing, ABC):
         #     self.box.words.sprite.remove(self)
         # else:
         #     self.box.words.add(self)
-        self.x, self.y = self.default_xy()
+
+        # self.x, self.y = self.default_xy()
         super().update()
         # self.dirty = 1
 

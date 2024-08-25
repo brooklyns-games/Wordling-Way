@@ -35,7 +35,6 @@ class Button(MySprite):
         """specific behavior what happen when clicked"""
         if self.mode == 'toggle':
             self.state = not self.state
-        # self.dirty = 1
 
     def set_click(self, switch:bool):
         """
@@ -56,6 +55,7 @@ class Button(MySprite):
             self.click()
 
     def default_xy(self):
+        # print('default')
         if self.align == 'left':
             return super().default_xy()
         elif self.align == 'right':
@@ -63,12 +63,13 @@ class Button(MySprite):
 
     def gotomouse(self):
         get_rel = usefuls.MOUSEREL
-        # print(get_rel)
+        # print(get_rel, self.box.name)
         x2, y2 = get_rel
         self.x += x2
         self.y += y2
         self.dirty = 1
 
+    # todo move to usefuls
     def check_updates(self):
         """Check if hovering state changes--start or stop hovering"""
         self.hov = self.hovering
@@ -79,24 +80,22 @@ class Button(MySprite):
 
 
     def update(self):
-        # super().update()
-        # print(self.dirty)
         if self.check_updates():
             self.dirty = 1
 
-        self.color = 'white'
-        self.x, self.y = self.default_xy()
-
         if self.hovering:
             pygame.mouse.get_rel()  # primes for clicking and staying with mouse
-            # self.dirty = 1
             self.color = 'green'
 
         if self.at_mouse and self.clicked:
+            # print('clicking')
             self.color = 'red'
             self.gotomouse()
+        else:
+            self.color = 'white'
+            self.x, self.y = self.default_xy()
 
-        super().update()
+        super().update()  # calls default xy
 
 # class SourceBubble(WordBubble):
 #     pass
@@ -125,7 +124,6 @@ class WordBubble(Button):
         """switches between default box and input box. adds 1 self """
         # print('toggling')
         if type(self.box) is SceneBox:
-            # print(vars(self))
             new = self.__class__(self.name, self.cat, self.input_box, self.cat)
         else:
             if self.box == self.word_box:
@@ -146,6 +144,7 @@ class WordBubble(Button):
         return self.box
 
     def set_click(self, switch):
+        # what?????
         super().set_click(switch)
         if not switch:
             self.state = False
