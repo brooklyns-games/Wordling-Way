@@ -3,7 +3,6 @@ Language word game
 Boxes:
 ?Implement sprite group add fucntion {name: sprite}--why again?
 
-x !Word bubbles do not follow mouse
 
 - Hiding words until an event
    - Introducing new words

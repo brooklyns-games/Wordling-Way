@@ -3,6 +3,7 @@ import re
 from button import *
 from globs import *
 from abstract import *
+from usefuls import *
 
 from menu import *
 
@@ -17,9 +18,12 @@ class Word(MySprite):
         # test_instances(Button)
         # Word.instances
         super().__init__(string, box, Word.words)
+    def default_xy(self):
+        return super().default_xy()
 
     def update(self):
         # print('sdfdf', self.image)
+        self.x, self.y = self.default_xy()
         super().update()
 
     """('Crazy? I was crazy once. They locked me in a room. 
@@ -52,21 +56,25 @@ class Scene:
             if not name:
                 words.add(Word(i, self.box))
             else:
-
                 if name in word_dict:
                     cat = word_dict[name].cat
                 else:
                     cat = None
-                words.add(WordBubble(name, self.box, cat, cat=cat))
+                words.add(SourceWordBubble(name, self.box, usefuls.input_box, cat=cat))
 
 # try xml, research
 #...add as csv ****
 # set(dict('word type': [strings]), dict(...), dict(...),...)
 make_words = {
-    verb: {'go', 'eat', 'make', 'give', },
-    noun: {'me', 'you', 'what', 'this', 'pickle'}
+    # this is getting too complex and nested
+    verb: ({'go',  }, {'eat', 'make', 'give',}),
+    noun: ({'me', 'you', 'what', 'this', }, {'pickle'}),
 }
-word_bank = {WordBubble(i, cat, input_box, cat=cat, spawn=False) for cat, val in make_words.items() for i in val}
+word_bank = {SourceWordBubble(i, cat, usefuls.input_box, cat=cat, spawn=i in start)   # if True else
+             # WordBubble(i, cat, )
+             for cat, *val in make_words.items()
+             for start, sups in val
+             for i in start | sups}
 word_dict = {sprite.name: sprite for sprite in word_bank}
 # levels
 

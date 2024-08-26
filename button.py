@@ -63,7 +63,6 @@ class Button(MySprite):
 
     def gotomouse(self):
         get_rel = usefuls.MOUSEREL
-        # print(get_rel, self.box.name)
         x2, y2 = get_rel
         self.x += x2
         self.y += y2
@@ -78,15 +77,10 @@ class Button(MySprite):
         #     print('yeet')
         return not self.hov == self.hovering
 
-
     def update(self):
-        if self.check_updates():
-            self.dirty = 1
-
-        if self.hovering:
-            pygame.mouse.get_rel()  # primes for clicking and staying with mouse
-            self.color = 'green'
-
+        print(self.name, self.visible)
+        if not self.visible:
+            return
         if self.at_mouse and self.clicked:
             # print('clicking')
             self.color = 'red'
@@ -94,19 +88,23 @@ class Button(MySprite):
         else:
             self.color = 'white'
             self.x, self.y = self.default_xy()
-
+        if self.hovering:
+            pygame.mouse.get_rel()  # primes for clicking and staying with mouse
+            self.color = 'green'
+            self.dirty = 1
+        if self.check_updates():
+            self.dirty = 1
         super().update()  # calls default xy
 
-# class SourceBubble(WordBubble):
-#     pass
+
 class WordBubble(Button):
     def __init__(self, string, word_box, input_box: Box, cat: Union[str, WordBox]=None, spawn=None):
         """
-
+        Basic version of wordbubble
         :param cat: Defaults to word_box
         :param spawn:
         """
-        super().__init__(string, word_box, mode='event')  # this adds to self.box.items
+        super().__init__(string, word_box, mode='event', spawn=spawn)  # this adds to self.box.items
         self.word_box = self.box
         self.input_box = input_box
 
@@ -116,53 +114,65 @@ class WordBubble(Button):
             self.cat = cat
 
         self.available_boxes = (self.word_box, input_box)  # idk if this can be used
+        self.no_repeats = False
 
     def move_boxes(self):
         pass
 
-    def toggle_box(self):
-        """switches between default box and input box. adds 1 self """
-        # print('toggling')
-        if type(self.box) is SceneBox:
-            new = self.__class__(self.name, self.cat, self.input_box, self.cat)
-        else:
-            if self.box == self.word_box:
-                other = self.input_box
-            elif self.box == self.input_box:
-                other = self.word_box
-            else:
-                raise ValueError
 
-            # todo reset state??
-            self.box.words.remove(self)
-            other.words.add(self)  # chill
-
-            self.box = other  # the switch
-
-        # should update in self.update() automatically
-
-        return self.box
 
     def set_click(self, switch):
         # what?????
         super().set_click(switch)
         if not switch:
             self.state = False
-
     def click(self):
-        if not self.state:  # todo what is self.state in bubble?
-            # print('toggle', self.clicked, self.state)
-            self.toggle_box()
-            self.state = True
+        self.toggle_box()
+    def toggle_box(self):
+        self.box.words.remove(self)
+        if self.no_repeats:
 
-    # def update(self):
-        # print(self.box)
-        # super().update()
+            self.input_box.words.add(self)
+
+
+class SourceWordBubble(WordBubble):
+    def __init__(self, string, word_box, input_box: Box, cat: Union[str, WordBox]=None, spawn=None):
+        super().__init__(string, word_box, input_box, cat, spawn)
+
+    def make_child(self, dest, spawn=None, cls=WordBubble, there=None):
+        new = cls(self.name, dest, self.input_box, self.cat, spawn=spawn)
+        return new
+
+    def toggle_box(self):
+        """switches between default box and input box. adds 1 self """
+        if type(self.box) is SceneBox:
+            # print(self.cat.words.list_names(), self.input_box.name)
+            if self.name in self.cat.words.list_names():  # word is already there
+                self.make_child(self.input_box, True)
+            else:
+                self.make_child(self.cat, True, SourceWordBubble)
+        else:
+            self.make_child(self.input_box, True)
+            if False and self.no_repeats:
+                if self.box == self.word_box:
+                    other = self.input_box
+                elif self.box == self.input_box:
+                    other = self.word_box
+                else:
+                    raise ValueError
+
+                # todo reset state??
+                self.box.words.remove(self)
+                other.words.add(self)  # chill
+
+                self.box = other  # the switch
+                # should update in self.update() automatically
+        return self.box
 
 
 class OKButton(Button):
-    def __init__(self, interface, *groups):
-        super().__init__('OK ->', interface, *groups, align='right', mode='event', spawn=False)
+    def __init__(self, interface, *groups, spawn=None):
+        super().__init__('OK ->', interface, *groups, align='right', mode='event', spawn=spawn)
         self.at_mouse = False
 
         # self.box.words.remove(self)  # to not mess up formatting

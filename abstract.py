@@ -46,7 +46,7 @@ class Thing(pygame.sprite.DirtySprite, ABC):
         self.image = get_transparent_surface(self.rect.size)
 
         self.font = self.set_font_size(40)
-        # self.color = 'black'
+        self.color = 'black'
 
         # self.update()
         self.dirty = 1
@@ -64,14 +64,19 @@ class Thing(pygame.sprite.DirtySprite, ABC):
     def draw_me(self):
         pass
 
+    def draw_text(self, surface, fit=False):
+        text = self.font.render(self.name, True, self.color)
+        if type(surface) is not pygame.Surface:
+            surface = pygame.Surface(surface)
+        surface.blit(text, text.get_rect())
+
+        return surface.copy()
     # @abstractmethod
     def update(self):
         self.image = self.draw_me()
         self.update_rect()
 
         # self.dirty = 1
-
-
 
 
 class MySprite(Thing, ABC):
@@ -88,8 +93,12 @@ class MySprite(Thing, ABC):
         self.font = self.set_font_size(60)
         self.rect = pygame.Rect([0, 0], self.font.size(name))
         super().__init__(name, self.rect, *groups)
-        if spawn:
+
+        from menu import SceneBox
+        if spawn or type(box) is SceneBox:
             box.words.add(self)
+        print(spawn, self.name, type(box))
+        self.hide = spawn
             # print('added', self.name)
 
         self.box = box
@@ -98,25 +107,20 @@ class MySprite(Thing, ABC):
         self.color = 'black'
         self.index = 0
 
-        self.hide = False
+
 
     def spawn_at(self):
         pass
 
-    def draw_text(self, surface, fit=False):
-        text = self.font.render(self.name, True, self.color)
-        if type(surface) is not pygame.Surface:
-            surface = pygame.Surface(surface)
-        surface.blit(text, text.get_rect())
 
-        return surface.copy()
 
     def draw_me(self):
+        """Surface with text on it"""
         self.image = self.draw_text(self.image)
         return self.image
 
     def default_xy(self):
-
+        """This is used by Word(), for paragraph formats"""
         box = self.box.rect
         x, y = box.topleft
         x2, y2 = self.box.get_index(self)
@@ -128,20 +132,14 @@ class MySprite(Thing, ABC):
         # self.loc = pygame.sprite.GroupSingle(self.box.words)
 
         # if self.hide:
-        #     self.box.words.sprite.remove(self)
+        #     self.box.words.sprite.remove(self)  # ?? what is sprite
         # else:
         #     self.box.words.add(self)
+        self.visible = self in self.box.words
 
-        # self.x, self.y = self.default_xy()
+        # self.x, self.y = self.default_xy()  # the indiv objects might have a different pos
         super().update()
         # self.dirty = 1
-
-
-    # @classmethod
-    # def self_group(cls, instance):
-    #     # print('\tadding', cls, len(cls.instances))
-    #     cls.instances.add(instance)
-    #     # print(len(cls.instances))
 
     def on_screen(self, screen):
         return not screen.contains(self.rect)

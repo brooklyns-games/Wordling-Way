@@ -2,20 +2,9 @@ import pygame
 
 from abstract import Thing
 
-def find3d(target, lst, comp='=='):
-    """
+from menu import *
+from words import *
 
-    :param target:
-    :param lst:
-    :param comp: not built yet
-    :return: int() index of row where target was found
-    """
-    for x in range(len(lst)):
-        for y in lst[x]:
-            if y == target:
-                return x
-    else:
-        return False
 
 class MyMouse(Thing):
     def __init__(self, *groups):
@@ -32,6 +21,7 @@ class MyMouse(Thing):
         self.coords.append((self.x, self.y))
         if self.display:
             print(self.coords)
+            # print((self.x, self.y))
 
     def draw_me(self):
         self.image = self.font.render('({}, {})'.format(self.x, self.y), True, 'blue')
@@ -43,22 +33,24 @@ class MyMouse(Thing):
     def update(self):
         super().update()
         self.dirty = 1
-        # self.draw_me()
-        # self.rect.update([self.x, self.y], self.image.get_size())
 
 
 class MyEvent:
     def __init__(self, t, dic):
+        """
+        Allows developer to insert events into game, for testing purposes
+        :param t: int() that is pygame event type, or func object
+        :param dic: attributes to put into t
+        """
         self.t = t
         self.dic = dic
 
     def post(self):
-        # print('self.t', self.t)
-        if type(self.t) in (pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN, pygame.mouse):
+        if self.t in (pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN, pygame.mouse):
             if not pygame.mouse.get_focused():
                 print('Mouse is not in window')
         if type(self.t) is int:
-            self.dic['command'] = True
+            self.dic['command'] = True  # new event attr to signal it's a Dev-gen'd event
             pygame.event.post(pygame.event.Event(self.t, self.dic))
         elif callable(self.t):
             # print('callable', self.t)
@@ -76,15 +68,26 @@ plain_mouse_check = [(61, 512),
                (44, 502), (55, 556), (41, 634), (29, 677), (630, 506), (645, 576), (642, 637), (664, 678),
                (1126, 441)]
 this_bug = [(506, 20)]
-for coords in this_bug:
+pickle = [(471, 26), (471, 26)]
+
+which = pickle
+for coords in which:
     COMMANDS += [MyEvent(pygame.MOUSEMOTION, {'pos': coords}),  # MyEvent(pygame.mouse.set_pos, coords),
                  MyEvent(pygame.MOUSEBUTTONDOWN, {}),
                  MyEvent(pygame.MOUSEBUTTONUP, {})]
 MODE = True
+# False to run commands
 
 MOUSEPRESSED = None  # until mousebutton up
 MOUSEPOSITION = None
 MOUSEREL = None
+
+scene_box = SceneBox((0, 0, W, H / 3))
+input_box = InputBox([0, H / 3, W, H / 3, ])
+
+wordboxes = Interface([0, int(H * 2 / 3), W, (H / 3)], name='word boxes')
+verb = WordBox('verb', 'light green', bind=wordboxes)  # optimize calculations
+noun = WordBox('noun', 'magenta', bind=wordboxes)
 
 """
 x set visible()

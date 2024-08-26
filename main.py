@@ -17,7 +17,7 @@ CLOCK = pygame.time.Clock()
 BACKGROUND = pygame.Surface((W, H))
 BACKGROUND.fill('pink')
 
-ok_button = OKButton(input_box, menu)
+ok_button = OKButton(usefuls.input_box, menu, spawn=True)
 
 utilities = pygame.sprite.Group()
 mymouse = usefuls.MyMouse(utilities)
@@ -69,7 +69,7 @@ while not done:
         if pygame.event.get(message_ok):
             # print('', input_box.words.list_names())
             inpt = []
-            for bubble in input_box.words.sprite_list:
+            for bubble in usefuls.input_box.words.sprite_list:
                 # print(bubble)
                 if type(bubble) is WordBubble:
                     inpt.append(bubble.name)

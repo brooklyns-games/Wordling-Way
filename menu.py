@@ -1,9 +1,9 @@
 import pygame
 from globs import *
-from words import *
+
 from abstract import *
 
-import usefuls
+# import usefuls
 
 # pygame.font.init()
 
@@ -83,8 +83,12 @@ class Box(Interface):
         # self.words.update()
 
     def get_index(self, sprite: MySprite):
-        """Returns where the sprite is inside the group. Sticky list sprites always have the same place.
-        This runs outside of self.update(), called by a self.words item"""
+        """Returns coords. Calc'd based off other sprites in box.
+        Sticky list sprites always have the same place.
+        """
+        if not sprite in self.words:  # should filter??
+            # print('not found', sprite.name)
+            return 0, 0
 
         if len(self.words) > 0:
 
@@ -102,6 +106,8 @@ class WriteBox(Box, ABC):
         super().__init__(rect, name, 'white', sticky=False, bind=bind)
 
     def get_index(self, sprite: MySprite):
+        if sprite not in self.words:
+            return 0, 0
         widths = {word: word.rect.width for word in self.words}  # important to be in order
         acc = 0
         row = 0
@@ -115,7 +121,7 @@ class WriteBox(Box, ABC):
                 row += 1
                 self.rows.append([])  # new row
             self.rows[-1].append(word)
-        self.positions = {word: (widths[word], usefuls.find3d(word, self.rows) * word.rect.height)
+        self.positions = {word: (widths[word], find3d(word, self.rows) * word.rect.height)
                           for word in self.words}
         return self.positions[sprite]
 
@@ -149,9 +155,3 @@ class WordBox(Box):
 
 
 
-scene_box = SceneBox((0, 0, W, H / 3))
-input_box = InputBox([0, H / 3, W, H / 3, ])
-
-wordboxes = Interface([0, int(H * 2 / 3), W, (H / 3)], name='word boxes')
-verb = WordBox('verb', 'light green', bind=wordboxes)  # optimize calculations
-noun = WordBox('noun', 'magenta', bind=wordboxes)
