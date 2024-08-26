@@ -95,9 +95,9 @@ class MySprite(Thing, ABC):
         super().__init__(name, self.rect, *groups)
 
         from menu import SceneBox
-        if spawn or type(box) is SceneBox:
-            box.words.add(self)
-        print(spawn, self.name, type(box))
+        # if spawn or type(box) is SceneBox:
+        #     box.words.add(self)
+        # print(spawn, self.name, type(box))
         self.hide = spawn
             # print('added', self.name)
 
@@ -135,7 +135,7 @@ class MySprite(Thing, ABC):
         #     self.box.words.sprite.remove(self)  # ?? what is sprite
         # else:
         #     self.box.words.add(self)
-        self.visible = self in self.box.words
+        # self.visible = self in self.box.words
 
         # self.x, self.y = self.default_xy()  # the indiv objects might have a different pos
         super().update()
@@ -143,7 +143,6 @@ class MySprite(Thing, ABC):
 
     def on_screen(self, screen):
         return not screen.contains(self.rect)
-
 
 ALLSPRITES = pygame.sprite.LayeredDirty()
 

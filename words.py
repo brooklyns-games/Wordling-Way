@@ -56,11 +56,11 @@ class Scene:
             if not name:
                 words.add(Word(i, self.box))
             else:
-                if name in word_dict:
-                    cat = word_dict[name].cat
+                if name in word_dict.keys():
+                    words.add(word_dict[name])
                 else:
                     cat = None
-                words.add(SourceWordBubble(name, self.box, usefuls.input_box, cat=cat))
+                    words.add(SourceWordBubble(name, cat=cat))
 
 # try xml, research
 #...add as csv ****
@@ -70,12 +70,15 @@ make_words = {
     verb: ({'go',  }, {'eat', 'make', 'give',}),
     noun: ({'me', 'you', 'what', 'this', }, {'pickle'}),
 }
-word_bank = {SourceWordBubble(i, cat, usefuls.input_box, cat=cat, spawn=i in start)   # if True else
-             # WordBubble(i, cat, )
+word_bank = {SourceWordBubble(i, cat)   # if True else
              for cat, *val in make_words.items()
              for start, sups in val
              for i in start | sups}
 word_dict = {sprite.name: sprite for sprite in word_bank}
+
+for s, *_ in make_words.values():
+    for i in s:
+        word_dict[i].spawn(None)
 # levels
 
 MAP = [Scene("It seems that you are in a <pickle>...", box=scene_box)]

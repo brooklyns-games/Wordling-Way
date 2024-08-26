@@ -17,7 +17,7 @@ CLOCK = pygame.time.Clock()
 BACKGROUND = pygame.Surface((W, H))
 BACKGROUND.fill('pink')
 
-ok_button = OKButton(usefuls.input_box, menu, spawn=True)
+ok_button = OKButton(usefuls.input_box, menu)
 
 utilities = pygame.sprite.Group()
 mymouse = usefuls.MyMouse(utilities)
@@ -54,7 +54,7 @@ while not done:
         if event.type == pygame.MOUSEBUTTONDOWN:
             mymouse.click()
             for button in Button.buttons:
-                if button.hovering:  # there will be a 1-tick delay because not updated()
+                if button.hovering and button.visible:  # there will be a 1-tick delay because not updated()
                     # print(button)
                     button.add(clicking)
                     button.set_click(True)

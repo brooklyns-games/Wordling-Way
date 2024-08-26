@@ -67,9 +67,6 @@ class Box(Interface):
 
         # self.update()
 
-    # def clear(self):
-    #     self.words.clear()  # should be not surface todo
-    # def
     def update(self):
 
         super().update()
@@ -89,6 +86,7 @@ class Box(Interface):
         if not sprite in self.words:  # should filter??
             # print('not found', sprite.name)
             return 0, 0
+        # print(sprite.name, 'in', self.name)
 
         if len(self.words) > 0:
 
@@ -106,8 +104,10 @@ class WriteBox(Box, ABC):
         super().__init__(rect, name, 'white', sticky=False, bind=bind)
 
     def get_index(self, sprite: MySprite):
+        # print(sprite.name, 'in', self.name)
         if sprite not in self.words:
             return 0, 0
+
         widths = {word: word.rect.width for word in self.words}  # important to be in order
         acc = 0
         row = 0
