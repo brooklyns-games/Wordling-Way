@@ -82,7 +82,7 @@ class Thing(pygame.sprite.DirtySprite, ABC):
 class MySprite(Thing, ABC):
     # instances = OrderedGroup()  # pygame.sprite.Group()
 
-    def __init__(self, name, box, *groups, spawn=True, ):
+    def __init__(self, name, box, *groups, autospawn=True, ):
         rect = (0, 0, 50, 50)
         """
 
@@ -94,12 +94,6 @@ class MySprite(Thing, ABC):
         self.rect = pygame.Rect([0, 0], self.font.size(name))
         super().__init__(name, self.rect, *groups)
 
-        from menu import SceneBox
-        # if spawn or type(box) is SceneBox:
-        #     box.words.add(self)
-        # print(spawn, self.name, type(box))
-        self.hide = spawn
-            # print('added', self.name)
 
         self.box = box
         # self.loc = pygame.sprite.GroupSingle(self.box.words)
@@ -107,12 +101,25 @@ class MySprite(Thing, ABC):
         self.color = 'black'
         self.index = 0
 
+        if autospawn is not False:  # and Box in type(autospawn).__bases__:
+            # print('spawning into', autospawn.name)
+            self.spawn(autospawn)
 
-
-    def spawn_at(self):
-        pass
-
-
+    def spawn(self, box=None):
+        # todo box can be diff from self.box
+        self.visible = 1
+        self.dirty = 1
+        if box in (None, True):
+            box = self.box
+        box.words.add(self)
+        print(box.words.list_names())
+        # self.update()
+    def unspawn(self, box=None):
+        self.visible = 0
+        self.dirty = 1
+        if box is None:
+            box = self.box
+        box.words.remove(self)
 
     def draw_me(self):
         """Surface with text on it"""
@@ -129,14 +136,7 @@ class MySprite(Thing, ABC):
         return x, y
 
     def update(self):
-        # self.loc = pygame.sprite.GroupSingle(self.box.words)
-
-        # if self.hide:
-        #     self.box.words.sprite.remove(self)  # ?? what is sprite
-        # else:
-        #     self.box.words.add(self)
-        # self.visible = self in self.box.words
-
+        # self.loc = pygame.sprite.GroupSingle(self.box.words
         # self.x, self.y = self.default_xy()  # the indiv objects might have a different pos
         super().update()
         # self.dirty = 1

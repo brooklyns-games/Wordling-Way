@@ -105,6 +105,7 @@ class WriteBox(Box, ABC):
 
     def get_index(self, sprite: MySprite):
         # print(sprite.name, 'in', self.name)
+        # print(sprite in self.words)
         if sprite not in self.words:
             return 0, 0
 

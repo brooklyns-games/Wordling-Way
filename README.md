@@ -4,8 +4,6 @@ Boxes:
 ?Implement sprite group add fucntion {name: sprite}--why again?
 
 
-- Hiding words until an event
-   - Introducing new words
 - Items {}
 - Rename, reorg modules
 

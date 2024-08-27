@@ -10,8 +10,8 @@ menu = pygame.sprite.Group()
 
 class Button(MySprite):
     buttons = OrderedGroup()
-    def __init__(self, string, box, *groups, align: str ='left', mode='toggle'):
-        super().__init__(string, box, *groups, Button.buttons)  # groups adding
+    def __init__(self, string, box, *groups, align: str ='left', mode='toggle', autospawn=True):
+        super().__init__(string, box, *groups, Button.buttons, autospawn=autospawn)  # groups adding
         # rect=(0, 0, 100, 50)
         # print(string, spawn, self.box.words.list_names())
         self.font = self.set_font_size(int(self.rect.height * 1.5))
@@ -74,17 +74,19 @@ class Button(MySprite):
     def check_updates(self):
         """Check if hovering state changes--start or stop hovering"""
         self.hov = self.hovering
-        self.hovering = self.rect.collidepoint(*usefuls.MOUSEPOSITION)  # put in collisions? keep here?
+        self.hovering = self.rect.collidepoint(*usefuls.MOUSEPOSITION) and pygame.mouse.get_focused()  # put in collisions? keep here?
         # if self.hov != self.hovering:
         #     print(True, self.hovering, self.clicked)
         return not self.hov == self.hovering
 
     def update(self):
+
+        if self.check_updates():
+            self.dirty = 1
+
         if not self.visible:  # saving proc power?
             # self.dirty = 1
             return
-        if self.check_updates():
-            self.dirty = 1
 
         if self.hovering:
             pygame.mouse.get_rel()  # primes staying with mouse--assign to 0, 0?? **
@@ -97,6 +99,7 @@ class Button(MySprite):
             self.dirty = 1
         else:
             self.color = 'white'
+            # print(self.default_xy())
             self.x, self.y = self.default_xy()
 
 
@@ -122,20 +125,9 @@ class WordBubble(Button):
 
         self.visible = 0
 
-        if autospawn is not False:  # and Box in type(autospawn).__bases__:
-            # print('spawning into', autospawn.name)
-            self.spawn(autospawn)
 
-    def spawn(self, box=None):
-        self.visible = 1
-        self.dirty = 1
-        if box is None:
-            box = self.cat
-        # print('spawning at', box.name)
-        box.words.add(self)
-        # print(self.name, self.visible, self.rect)
-        print(box.words.list_names())
-        # self.update()
+
+
 
     def move_boxes(self):
         pass
@@ -150,10 +142,8 @@ class WordBubble(Button):
         self.toggle_box()
 
     def toggle_box(self):
-        self.box.words.remove(self)
-        # print(self.box.words.has(self))
+        self.unspawn(self.box)
         if self.no_repeats:
-
             self.input_box.words.add(self)
 
 class SourceWordBubble(WordBubble):
@@ -162,14 +152,6 @@ class SourceWordBubble(WordBubble):
 
     def make_child(self, dest, cls=WordBubble):
         new = cls(self.name, dest, autospawn=dest)
-        # print(new.name, new.visible)
-        # new.spawn(dest)
-        # new.update()
-        # print(new.name, new.visible)
-        # print('\t', dest.name)
-        # print('\t', dest.words.has(new))
-
-        # print(new.box.name, dest.name)
         return new
 
     def toggle_box(self):
@@ -190,12 +172,12 @@ class SourceWordBubble(WordBubble):
 
 class OKButton(Button):
     def __init__(self, interface, *groups):
-        super().__init__('OK ->', interface, *groups, align='right', mode='event')
+        super().__init__('OK ->', interface, *groups, align='right', mode='event', autospawn=True)
         self.at_mouse = False
 
         # self.box.words.remove(self)  # to not mess up formatting
         # print(self.box.words.list_names())
-        self.box.items.add(self)
+        # self.box.items.add(self)
         # print(self.box.words.list_names())
 
     def click(self):
