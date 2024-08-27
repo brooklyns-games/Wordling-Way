@@ -79,7 +79,7 @@ MODE = True
 # False to run commands
 
 MOUSEPRESSED = None  # until mousebutton up
-MOUSEPOSITION = None
+MOUSEPOSITION = (0, 0)
 MOUSEREL = None
 
 scene_box = SceneBox((0, 0, W, H / 3))

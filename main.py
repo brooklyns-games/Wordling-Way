@@ -55,7 +55,7 @@ while not done:
             mymouse.click()
             for button in Button.buttons:
                 if button.hovering and button.visible:  # there will be a 1-tick delay because not updated()
-                    # print(button)
+                    print(button)
                     button.add(clicking)
                     button.set_click(True)
                     button.dirty = 1

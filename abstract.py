@@ -81,7 +81,7 @@ class Thing(pygame.sprite.DirtySprite, ABC):
 
 class MySprite(Thing, ABC):
     # instances = OrderedGroup()  # pygame.sprite.Group()
-
+    # from menu import Box
     def __init__(self, name, box, *groups, autospawn=True, ):
         rect = (0, 0, 50, 50)
         """
@@ -101,9 +101,11 @@ class MySprite(Thing, ABC):
         self.color = 'black'
         self.index = 0
 
+        self.visible = 0
         if autospawn is not False:  # and Box in type(autospawn).__bases__:
             # print('spawning into', autospawn.name)
             self.spawn(autospawn)
+            # self.update()
 
     def spawn(self, box=None):
         # todo box can be diff from self.box
@@ -113,6 +115,7 @@ class MySprite(Thing, ABC):
             box = self.box
         box.words.add(self)
         print(box.words.list_names())
+        print(self.visible, self.rect, self.box.name, )
         # self.update()
     def unspawn(self, box=None):
         self.visible = 0

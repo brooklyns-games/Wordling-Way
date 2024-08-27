@@ -59,6 +59,7 @@ class Button(MySprite):
     def default_xy(self):
         # print('default')
         if self.align == 'left':
+            print('default left', self.name)
             return super().default_xy()
         elif self.align == 'right':
             return self.box.rect.x + self.box.rect.width - self.image.get_width(), self.box.rect.y + self.box.rect.height - self.image.get_height()
@@ -75,19 +76,21 @@ class Button(MySprite):
         """Check if hovering state changes--start or stop hovering"""
         self.hov = self.hovering
         self.hovering = self.rect.collidepoint(*usefuls.MOUSEPOSITION) and pygame.mouse.get_focused()  # put in collisions? keep here?
-        # if self.hov != self.hovering:
-        #     print(True, self.hovering, self.clicked)
+        if self.hov != self.hovering:
+            print(True, self.hovering, self.clicked)
         return not self.hov == self.hovering
 
     def update(self):
 
-        if self.check_updates():
-            self.dirty = 1
+
 
         if not self.visible:  # saving proc power?
             # self.dirty = 1
             return
-
+        if self.name == 'go' :
+            print(self.name, self.box.name, super().default_xy(), self.rect)
+        if self.check_updates():
+            self.dirty = 1
         if self.hovering:
             pygame.mouse.get_rel()  # primes staying with mouse--assign to 0, 0?? **
             self.color = 'green'
@@ -103,6 +106,8 @@ class Button(MySprite):
             self.x, self.y = self.default_xy()
 
 
+
+
         # self.dirty = 1
 
         super().update()  # calls default xy
@@ -115,7 +120,7 @@ class WordBubble(Button):
         :param cat: Defaults to word_box
         :param spawn:
         """
-        super().__init__(string, cat, mode='event', )  # this adds to self.box.items
+        super().__init__(string, cat, mode='event', autospawn=autospawn)  # this adds to self.box.items
         # self.word_box = self.box
         self.input_box = usefuls.input_box
         self.cat = cat
@@ -123,11 +128,7 @@ class WordBubble(Button):
         # self.available_boxes = (self.word_box, input_box)  # idk if this can be used
         self.no_repeats = False
 
-        self.visible = 0
-
-
-
-
+        # self.visible = 0
 
     def move_boxes(self):
         pass
@@ -137,6 +138,7 @@ class WordBubble(Button):
         super().set_click(switch)
         if not switch:
             self.state = False
+
     def click(self):
         # print('click')
         self.toggle_box()
@@ -152,11 +154,12 @@ class SourceWordBubble(WordBubble):
 
     def make_child(self, dest, cls=WordBubble):
         new = cls(self.name, dest, autospawn=dest)
+        print(new.box.name, '!', new.box.words.has(new), new.visible)  # this works
         return new
 
     def toggle_box(self):
         """switches between default box and input box. adds 1 self """
-        # print('toggle')
+        print('toggle')
         if type(self.box) is SceneBox:
             # print(self.cat.words.list_names(), self.input_box.name)
             if self.name in self.cat.words.list_names():  # word is already there
