@@ -11,18 +11,14 @@ from menu import *
 class Word(MySprite):
     words = OrderedGroup()  # needs a new init because ref is too broad
     def __init__(self, string, box):
-        # ! passing box instead of self.box seems to solve everything-is-Button problem
+        """A single word for formatting purposes"""
 
-        # print('before word')
-        # print(self.__class__.__name__, self.groups())
-        # test_instances(Button)
-        # Word.instances
         super().__init__(string, box, Word.words)
+
     def default_xy(self):
         return super().default_xy()
 
     def update(self):
-        # print('sdfdf', self.image)
         self.x, self.y = self.default_xy()
         super().update()
 
@@ -35,18 +31,17 @@ class Scene:
         self.words = words
         self.box = box
 
-        # keywords = re.findall('^<*>', self.words)  # <*>'
-        # print(keywords)
-
-    def is_key(self, string):
+    @staticmethod
+    def is_key(string) -> "str|bool":
+        """Detects if a string is a keyword by <something>"""
         # print(string)
         if not all(x in string for x in ('<', '>')):
             return False
         left = string.index('<')
         right = string.index('>')
         if right >= left:
-            # print(string[left + 1:right])
             return string[left + 1:right]
+        return False
         # return string.startswith('<') and string.endswith('>')
 
     def write(self):
@@ -55,12 +50,11 @@ class Scene:
             name = self.is_key(i)
             if not name:
                 words.add(Word(i, self.box))
-            else:
+            else:  # is keyword
                 if name in word_dict.keys():
-                    words.add(word_dict[name])
-                else:
-                    cat = None
-                    words.add(SourceWordBubble(name, cat=cat))
+                    words.add(word_dict[name])  # find the already-made sprite
+                else:  # makes a new one
+                    words.add(SourceWordBubble(name, cat=None))
 
 # try xml, research
 #...add as csv ****
@@ -79,7 +73,6 @@ word_dict = {sprite.name: sprite for sprite in word_bank}
 for s, *_ in make_words.values():
     for i in s:
         word_dict[i].spawn(None)
-# levels
 
 MAP = [Scene("It seems that you are in a <pickle>...", box=scene_box)]
 

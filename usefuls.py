@@ -36,7 +36,7 @@ class MyMouse(Thing):
 
 
 class MyEvent:
-    def __init__(self, t, dic):
+    def __init__(self, t:"Callable|int", dic):
         """
         Allows developer to insert events into game, for testing purposes
         :param t: int() that is pygame event type, or func object
