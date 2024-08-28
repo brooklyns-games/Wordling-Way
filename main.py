@@ -1,9 +1,10 @@
 import pygame
 
+from abstract import *
 from globs import *
-from words import *
+from words import Parser, Scene, make_words, MAP
 from button import *
-from menu import *
+# from menu import *
 
 import usefuls
 
@@ -17,12 +18,14 @@ CLOCK = pygame.time.Clock()
 BACKGROUND = pygame.Surface((W, H))
 BACKGROUND.fill('pink')
 
-utilities = pygame.sprite.Group()
-MYMOUSE = usefuls.MyMouse(utilities)
+menu = pygame.sprite.Group()
 OKBUTTON = OKButton(usefuls.input_box, menu)
 
 make_command = pygame.event.custom_type()
 
+for s, *_ in make_words.values():
+    for i in s:
+        Scene.word_dict[i].spawn(None)
 MAP[0].write()
 
 ticks = 0
@@ -46,18 +49,18 @@ while not done:
             pygame.mouse.set_pos(event.pos)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            MYMOUSE.click()
+            usefuls.MYMOUSE.click()
             for button in Button.buttons:
                 if button.hovering and button.visible:  # there will be a 1-tick delay because not updated()
-                    button.add(clicking)
+                    # button.add(clicking)
                     button.set_click(True)
 
         if event.type == pygame.MOUSEBUTTONUP:
             for button in Button.buttons:  # every button is set to False
                 button.set_click(False)
-                clicking.empty()
+                # clicking.empty()
 
-        if pygame.event.get(message_ok):
+        if pygame.event.get(usefuls.message_ok):
             inpt = []
             for bubble in usefuls.input_box.words.sprite_list:
                 # print(bubble)
@@ -69,16 +72,16 @@ while not done:
     usefuls.MOUSEPRESSED = pygame.mouse.get_pressed()[0]  # until mousebutton up
     usefuls.MOUSEPOSITION = pygame.mouse.get_pos()
     usefuls.MOUSEREL = pygame.mouse.get_rel()
-    MYMOUSE.set_coords(*usefuls.MOUSEPOSITION)  # reason mouse does not update unless moved
+    usefuls.MYMOUSE.set_coords(*usefuls.MOUSEPOSITION)  # reason mouse does not update unless moved
     """Sprite updates"""
-    ALLSPRITES.update()
-    utilities.update()
+    usefuls.ALLSPRITES.update()
+    usefuls.utilities.update()
 
     """Drawing """
     ALLSPRITES.clear(SCREEN, BACKGROUND)
 
     dirty_rects = ALLSPRITES.draw(SCREEN)
-    utilities.draw(SCREEN)
+    usefuls.utilities.draw(SCREEN)
 
     pygame.display.update(dirty_rects)
     CLOCK.tick(60)

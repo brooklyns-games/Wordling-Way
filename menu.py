@@ -3,34 +3,30 @@ from globs import *
 
 from abstract import *
 
-# import usefuls
+from button import *
 
-# pygame.font.init()
-
-# What is the difference between Interface and Box??
-# Interfaces can be groups for boxes
 class Interface(Box):
     instances = OrderedGroup()
     def __init__(self, rect=(0, 0, W, H), name=None, color='light blue'):
         super().__init__(name, rect, color=color, )
-
         self.mini_rect = self.rect.copy()
 
 
-
 class WriteBox(Box, ABC):
-    def __init__(self, name, rect=(0, 0, W, H), bind=None, color='green'):
-        super().__init__(name, rect, color=color, sticky=False, bind=bind, )
+    def __init__(self, name, rect=(0, 0, W, H), bind=None, color='green', include=None):
+        # from words import Word
+        # from button import WordBubble
+        super().__init__(name, rect, color=color, sticky=False, bind=bind, include=include)
         self.rows = [[]]  # facsimile rep of word rows on screen
 
     def get_index(self, sprite: MySprite):
         from button import OKButton  # todo find better solution
-        print(self.words.list_names())
+        # print(self.words.list_names())
         # todo remove OK button--in button's init or here?
         # {Sprite: width int}
         widths = {word: word.rect.width for word in self.words
                   }  # important to be in order
-        if type(sprite) is OKButton:
+        if not self.words.has(sprite):
             return 0, 0
 
         acc = 0
@@ -58,7 +54,8 @@ class SceneBox(WriteBox):
 
 class InputBox(WriteBox):
     def __init__(self, rect=(0, 0, W, H), bind=None):
-        super().__init__('input', rect, bind, color='light blue')
+        super().__init__('input', rect, bind, color='light blue', include=WordBubble)
+        self.words = UnorderedGroup(self.name, include=WordBubble)  # recast as Unordered
 
     # def update(self):
     #     super().update()
@@ -68,12 +65,6 @@ class InputBox(WriteBox):
 class WordBox(Box):
     def __init__(self, name, color='light green', rect=(0, 0, W, H), bind=None):
         super().__init__(name, rect, color, sticky=True, bind=bind)
-
-    # def update(self):
-    #     super().update()
-    #     for sprite in self.words:
-    #         if not self.whitelist.has(sprite):
-    #             self.words.remove(sprite)
 
 
 

@@ -5,28 +5,30 @@ from collections.abc import Iterable
 from typing import *
 
 from globs import *
-# from menu import Box
 
 pygame.font.init()
 
 class OrderedGroup(pygame.sprite.AbstractGroup):  # not pygame.sprite.Group
-    def __init__(self, name=str(), keep_order=True):  # name == developer reference only
+    def __init__(self, name=str(), include=None):  # name == developer reference only
+        """
+
+        :param name:
+        :param include: default None -> accepts all. Or can specify whitelist types
+        """
         super().__init__()
         self.sprite_list = list()
         self.name = name  # printin
 
-        self.keep_order = keep_order
+        self.include = include
 
     def add_internal(self, sprite:pygame.sprite.Sprite.__subclasses__(), layer=None):
-        super().add_internal(sprite)
-        if sprite not in self.sprite_list:
-            self.sprite_list.append(sprite)
-
-    def remove_internal(self, sprite):
-        super().add_internal(sprite)
-        if not self.keep_order:
-            if sprite in self.sprite_list:
-                self.sprite_list.remove(sprite)
+        # print(self.include)
+        # is_included = all(e in self.include for e in type(sprite).__subclasses__())
+        # print(type(sprite), self.include, )
+        if self.include is None or type(sprite) is self.include:
+            super().add_internal(sprite)
+            if sprite not in self.sprite_list:
+                self.sprite_list.append(sprite)
 
     def list_names(self):  #  __str__?
         return list(i.name for i in self.sprite_list)
@@ -37,13 +39,15 @@ class OrderedGroup(pygame.sprite.AbstractGroup):  # not pygame.sprite.Group
         reverse_order = {j: i for i, j in order.items()}
         return reverse_order[sprite]
 
-    # def draw_me(self, surface):
-    #     super().draw(surface)
 
+class UnorderedGroup(OrderedGroup):
+    def __init__(self, name=str, include=None):
+        super().__init__(name,include)
+    def remove_internal(self, sprite):
+        super().remove_internal(sprite)
+        if sprite in self.sprite_list:
+            self.sprite_list.remove(sprite)
 
-def test_instances(klass):
-    # if klass
-    print(len(klass.instances), klass.instances.list_names())
 
 def get_transparent_surface(size):
     return pygame.Surface(size, pygame.SRCALPHA, 32)
@@ -94,13 +98,13 @@ class Thing(pygame.sprite.DirtySprite, ABC):
 class Box(Thing, ABC):
     instances = OrderedGroup()
     def __init__(self, name=None, rect=(0, 0, W, H), color='orange',
-                 sticky: bool =True, bind=None, weight:float =1):
+                 sticky: bool =True, bind=None, weight:float =1, include=None):
         """
         :param sticky: Removing a word does not affect positions
         :param bind: Interface(), overrides self.rect
         """
-
-        self.words = OrderedGroup(name)  # made of Word()s
+        # print(self.__class__.__name__, 'group type')
+        self.words = OrderedGroup(name, include)  # made of Word()s
         self.bind = bind
 
         super().__init__(name, rect, color=color)
@@ -150,10 +154,10 @@ class Box(Thing, ABC):
 class MySprite(Thing, ABC):
     # instances = OrderedGroup()  # pygame.sprite.Group()
 
-    def __init__(self, name, box: Box, *groups, autospawn:"bool|Box"=True):  # autospawn: "bool|Box"
+    def __init__(self, name, box:"Box|None", *groups, autospawn:"bool|Box"=True):  # autospawn: "bool|Box"
         """
         :param name: str() text that appears onscreen
-        :param box: Box() or Interface() (?) item that it is located
+        :param box: Item deps xy < Box() | None to not auto add to box.words (new box ties to autospawn value)
         :param groups:
         """
         self.font = self.set_font_size(60)
@@ -172,8 +176,13 @@ class MySprite(Thing, ABC):
         self.dirty = 1
         if box in (None, True):
             box = self.box
+        # print(box.words.list_names())
+        if self.box is None:
+            self.box = box
+        # else:
+        # print(type(self) in (WordBubble, Word))
         box.words.add(self)
-        print(box.words.list_names())
+
     def unspawn(self, box=None):
         self.visible = 0
         self.dirty = 1

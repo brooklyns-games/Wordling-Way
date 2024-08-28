@@ -1,12 +1,9 @@
-import pygame
-
-from typing import Union
+# import pygame
 
 from abstract import *
-from menu import Box, SceneBox, WordBox
 import usefuls
 
-menu = pygame.sprite.Group()
+
 
 class Button(MySprite):
     buttons = OrderedGroup()
@@ -41,7 +38,6 @@ class Button(MySprite):
         :return:
         """
         self.clicked = switch
-
         if self.clicked is True:
             self.click()
         self.dirty = 1
@@ -58,6 +54,7 @@ class Button(MySprite):
         x2, y2 = get_rel
         self.x += x2
         self.y += y2
+
         self.dirty = 1
 
     # todo move to usefuls
@@ -70,11 +67,7 @@ class Button(MySprite):
         return not self.hov == self.hovering
 
     def update(self):
-
-
-
         if not self.visible:  # saving proc power?
-            # self.dirty = 1
             return
         # if self.name == 'go' :
         #     print(self.name, self.box.name, super().default_xy(), self.rect)
@@ -93,25 +86,23 @@ class Button(MySprite):
             self.color = 'white'
             # print(self.default_xy())
             self.x, self.y = self.default_xy()
-
-
-
-
         # self.dirty = 1
-
         super().update()  # calls default xy
 
-
+# from words import Word
 class WordBubble(Button):
-    def __init__(self, string, cat: Union[str, WordBox]=None, autospawn=False):
+    def __init__(self, string, box: Union[str, Box]=None, cat:Box=None, autospawn=False):
         """
         Basic version of wordbubble
         :param cat: Defaults to word_box
         :param spawn:
         """
-        super().__init__(string, cat, mode='event', autospawn=autospawn)  # this adds to self.box.items
+        super().__init__(string, box, mode='event', autospawn=autospawn)  # this adds to self.box.items
         self.input_box = usefuls.input_box
-        self.cat = cat  # same as self.box
+        if type(cat) is None:
+            self.cat = self.box
+        else:
+            self.cat = cat  # same as self.box
 
         # self.available_boxes = (self.word_box, input_box)  # idk if this can be used
         self.no_repeats = False
@@ -130,7 +121,7 @@ class WordBubble(Button):
         self.toggle_box()
 
     def toggle_box(self):
-        self.unspawn(self.box)
+        self.unspawn(self.box)  # needs to detect which box it's in
         if self.no_repeats:
             self.input_box.words.add(self)
     def update(self):
@@ -138,19 +129,20 @@ class WordBubble(Button):
         # print(self.name, self.box, self.rect, self.visible)
 
 class SourceWordBubble(WordBubble):
-    def __init__(self, string, cat=None,):
-        super().__init__(string, cat)
+    def __init__(self, string, box, cat=None, autospawn=False):
+        super().__init__(string, box, cat=cat, autospawn=autospawn)
 
     def make_child(self, dest, cls=WordBubble) -> WordBubble:
         """Creates a new child inside this box"""
-        new = cls(self.name, dest, autospawn=dest)
+        new = cls(self.name, dest, cat=self.cat, autospawn=dest)
         # print(new.box.name, '!', new.box.words.has(new), new.visible)  # this works
         return new
 
     def toggle_box(self):
         """switches between default box and input box. adds 1 self """
         # print('toggle')
-        if type(self.box) is SceneBox:
+        from menu import SceneBox
+        if type(self.box) is SceneBox:  # todo put in method in box, scenebox still does this
             # print(self.cat.words.list_names(), self.input_box.name)
             if self.name in self.cat.words.list_names():  # word is already there
                 self.make_child(self.input_box)
@@ -166,11 +158,11 @@ class SourceWordBubble(WordBubble):
 class OKButton(Button):
     def __init__(self, box, *groups):
         """Button for submitting words in Input box"""
-        super().__init__('OK ->', box, *groups, align='right', mode='event', autospawn=True)
+        super().__init__('OK ->', None, *groups, align='right', mode='event', autospawn=box)
         self.clickable = True
 
     def click(self):
-        pygame.event.post(pygame.event.Event(message_ok))
+        pygame.event.post(pygame.event.Event(usefuls.message_ok))
 
         for sprite in self.box.words.sprites():
             if type(sprite) is WordBubble:
@@ -181,6 +173,8 @@ class OKButton(Button):
 
 
 
-message_ok = pygame.USEREVENT + 1
 
-clicking = pygame.sprite.GroupSingle()
+
+
+
+# clicking = pygame.sprite.GroupSingle()

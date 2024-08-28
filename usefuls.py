@@ -1,9 +1,10 @@
+from pydoc import plain
+
 import pygame
 
 from abstract import Thing
 
 from menu import *
-from words import *
 
 
 class MyMouse(Thing):
@@ -59,6 +60,10 @@ class MyEvent:
             else:
                 self.t(self.dic)
 
+utilities = pygame.sprite.Group()
+MYMOUSE = MyMouse(utilities)
+message_ok = pygame.USEREVENT + 1
+
 COMMANDS = [
     MyEvent(pygame.MOUSEBUTTONUP, {})
 ]
@@ -70,12 +75,12 @@ plain_mouse_check = [(61, 512),
 this_bug = [(506, 20)]
 pickle = [(471, 26), (471, 26)]
 
-which = pickle
+which = plain_mouse_check
 for coords in which:
     COMMANDS += [MyEvent(pygame.MOUSEMOTION, {'pos': coords}),  # MyEvent(pygame.mouse.set_pos, coords),
                  MyEvent(pygame.MOUSEBUTTONDOWN, {}),
                  MyEvent(pygame.MOUSEBUTTONUP, {})]
-MODE = True
+MODE = False
 # False to run commands
 
 MOUSEPRESSED = None  # until mousebutton up
@@ -88,6 +93,7 @@ input_box = InputBox([0, H / 3, W, H / 3, ])
 wordboxes = Interface([0, int(H * 2 / 3), W, (H / 3)], name='word boxes')
 verb = WordBox('verb', 'light green', bind=wordboxes)  # optimize calculations
 noun = WordBox('noun', 'magenta', bind=wordboxes)
+
 
 """
 x set visible()
