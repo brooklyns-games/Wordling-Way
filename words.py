@@ -24,7 +24,7 @@ class Word(MySprite):
 
         super().__init__(string, box, Word.words)
 
-    # def default_xy(self):
+    # def default_xy(self):  # keep
     #     return super().default_xy()
 
     def update(self):

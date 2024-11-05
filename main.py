@@ -51,6 +51,7 @@ while not done:
         if event.type == pygame.MOUSEBUTTONDOWN:
             usefuls.MYMOUSE.click()
             for button in Button.buttons:
+                # todo hovered buttons are added to a group, look at group
                 if button.hovering and button.visible:  # there will be a 1-tick delay because not updated()
                     # button.add(clicking)
                     button.set_click(True)
@@ -73,6 +74,10 @@ while not done:
     usefuls.MOUSEPOSITION = pygame.mouse.get_pos()
     usefuls.MOUSEREL = pygame.mouse.get_rel()
     usefuls.MYMOUSE.set_coords(*usefuls.MOUSEPOSITION)  # reason mouse does not update unless moved
+
+    for sprite in usefuls.ALLSPRITES:
+        if sprite.rect.collidepoint(*usefuls.MOUSEPOSITION) and pygame.mouse.get_focused():
+            pass
     """Sprite updates"""
     usefuls.ALLSPRITES.update()
     usefuls.utilities.update()

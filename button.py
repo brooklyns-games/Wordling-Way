@@ -4,7 +4,6 @@ from abstract import *
 import usefuls
 
 
-
 class Button(MySprite):
     buttons = OrderedGroup()
     def __init__(self, string, box, *groups, align:str='left', mode:str='toggle', autospawn=True):
@@ -17,9 +16,11 @@ class Button(MySprite):
 
         self.state = False
 
-        self.hovering = False
+        self.hovering = False  # bool if mouse is touching sprite
         self.hov = False
         self.clicked = False
+
+        # self.dirty = 2
 
     def draw_me(self):  # todo see readme
         self.image = self.draw_text(self.image)
@@ -35,7 +36,7 @@ class Button(MySprite):
         """
         Sets self.clicked
         :param switch: what to set self.click to
-        :return:
+        :return: self.hovering
         """
         self.clicked = switch
         if self.clicked is True:
@@ -57,24 +58,19 @@ class Button(MySprite):
 
         self.dirty = 1
 
-    # todo move to usefuls
-    def check_updates(self):
-        """Check if hovering state changes--start or stop hovering"""
-        self.hov = self.hovering
-        self.hovering = self.rect.collidepoint(*usefuls.MOUSEPOSITION) and pygame.mouse.get_focused()  # put in collisions? keep here?
-        # if self.hov != self.hovering:
-        #     print(True, self.hovering, self.clicked)
-        return not self.hov == self.hovering
-
     def update(self):
         if not self.visible:  # saving proc power?
             return
-        # if self.name == 'go' :
-        #     print(self.name, self.box.name, super().default_xy(), self.rect)
-        if self.check_updates():
+
+        # updates when starts/stops mouse hovering over
+        self.hov = self.hovering
+        self.hovering = self.rect.collidepoint(pygame.mouse.get_pos())
+        if self.hov != self.hovering:
             self.dirty = 1
+        # if self.check_updates():
+        #     self.dirty = 1
         if self.hovering:
-            pygame.mouse.get_rel()  # primes staying with mouse--assign to 0, 0?? **
+            usefuls.MOUSEREL = (0, 0)  # primes staying with mouse--assign to 0, 0?? **
             self.color = 'green'
             self.dirty = 1
         elif self.clickable and self.clicked:  # clicked also dep on self.hovering
@@ -167,14 +163,3 @@ class OKButton(Button):
         for sprite in self.box.words.sprites():
             if type(sprite) is WordBubble:
                 sprite.toggle_box()
-
-    # def set_click(self, switch):
-    #     super().set_click(switch)
-
-
-
-
-
-
-
-# clicking = pygame.sprite.GroupSingle()
