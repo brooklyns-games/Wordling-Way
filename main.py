@@ -26,23 +26,32 @@ make_command = pygame.event.custom_type()
 for s, *_ in make_words.values():
     for i in s:
         Scene.word_dict[i].spawn(None)
+
 MAP[0].write()
 
-ticks = 0
-done = False
-while not done:
+def override_events():
+    global ticks
     pygame.event.post(pygame.event.Event(make_command))  # each run checks
-    if pygame.event.get(make_command) and ticks < len(usefuls.COMMANDS):  # (pygame.time.get_ticks() % 100) < 500 < abs(pygame.time.get_ticks() - tick_range):
+
+    if pygame.event.get(make_command) and ticks < len(usefuls.COMMANDS):
         if usefuls.MODE is False:
             myevent = usefuls.COMMANDS[ticks]  # at least one tick must go by
             ticks += 1
             pygame.event.clear()
             myevent.post()
 
+def check_quit():
+    if event.type == pygame.QUIT:
+        pygame.quit()
+        raise SystemExit
+
+ticks = 0
+done = False
+while not done:
+    override_events()
+
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            raise SystemExit
+        check_quit()
 
         # v distinguishes Command events and User-generated events
         if event.type == pygame.MOUSEMOTION and 'command' in event.__dict__:
@@ -61,7 +70,7 @@ while not done:
                 button.set_click(False)
                 # clicking.empty()
 
-        if pygame.event.get(usefuls.message_ok):
+        if pygame.event.get(usefuls.message_ok):  # todo: more efficient way to send messages--add to a queue?
             inpt = []
             for bubble in usefuls.input_box.words.sprite_list:
                 # print(bubble)
@@ -86,7 +95,9 @@ while not done:
     ALLSPRITES.clear(SCREEN, BACKGROUND)
 
     dirty_rects = ALLSPRITES.draw(SCREEN)
+
     usefuls.utilities.draw(SCREEN)
+
 
     pygame.display.update(dirty_rects)
     CLOCK.tick(60)

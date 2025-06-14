@@ -9,6 +9,7 @@ class Button(MySprite):
     def __init__(self, string, box, *groups, align:str='left', mode:str='toggle', autospawn=True):
         super().__init__(string, box, *groups, Button.buttons, autospawn=autospawn)  # groups adding
         self.font = self.set_font_size(int(self.rect.height * 1.5))
+        self.string = string
 
         self.mode = mode  # modes: toggle, event, slider"""
         self.clickable = True
@@ -127,6 +128,7 @@ class WordBubble(Button):
 class SourceWordBubble(WordBubble):
     def __init__(self, string, box, cat=None, autospawn=False):
         super().__init__(string, box, cat=cat, autospawn=autospawn)
+        print(self.string)
 
     def make_child(self, dest, cls=WordBubble) -> WordBubble:
         """Creates a new child inside this box"""

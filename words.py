@@ -7,6 +7,8 @@ import usefuls
 
 from button import SourceWordBubble
 
+from pprint import pprint
+
 make_words = {
         # this is getting too complex and nested
         usefuls.verb: ({'go', }, {'eat', 'make', 'give', }),
@@ -16,6 +18,11 @@ word_bank = {SourceWordBubble(i, cat, cat=cat, autospawn=False)  # if True else
              for cat, *val in make_words.items()
              for start, sups in val
              for i in start | sups}
+
+# print('words ;3')
+word_bank_names = set()
+for word in word_bank:
+    word_bank_names.add(word.string)
 
 class Word(MySprite):
     words = OrderedGroup()  # needs a new init because ref is too broad
@@ -63,12 +70,13 @@ class Scene:
             name = self.is_key(i)
             if not name:
                 words.add(Word(i, self.box))
-            else:  # is keyword
-                if name in Scene.word_dict.keys():
-                    # print(Scene.word_dict[name].make_child(self.box, cls=SourceWordBubble))  # another source
-                    words.add(Scene.word_dict[name])  # find the already-made sprite
-                else:  # makes a new one
-                    words.add(SourceWordBubble(name, usefuls.noun, cat=None))
+            else:  # detects a keyword
+                # if name in word_bank_names:
+                #     # print(Scene.word_dict[name].make_child(self.box, cls=SourceWordBubble))  # another source
+                #     words.add(Scene.word_dict[name])  # find the already-made sprite
+                #     print(Scene.word_dict[name].name)
+                # else:  # makes a new one
+                words.add(SourceWordBubble(name, usefuls.noun, cat=None))
 
 # try xml, research
 #...add as csv ****
@@ -83,7 +91,7 @@ class Parser:
     def __init__(self, *words):
         self.words = words
 
-        print(self.words)
+        # print(self.words)
 
 
 class Quest:
