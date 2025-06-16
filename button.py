@@ -24,8 +24,14 @@ class Button(MySprite):
         # self.dirty = 2
 
     def draw_me(self):  # todo see readme
+        self.dirty = 1
+        # pygame.draw.rect(self.image, self.color, self.rect, 4, border_radius=15)
         self.image = self.draw_text(self.image)
-        pygame.draw.rect(self.image, self.color, self.rect, 5, border_radius=15)
+        if self.string == 'go' and self.color == 'green':
+            print('yes')
+        pygame.draw.rect(self.image, self.color, self.rect, 4, border_radius=15)
+        # self.box..blit(self.image, (0, 0))
+
         return self.image
 
     def click(self):
@@ -74,15 +80,16 @@ class Button(MySprite):
             usefuls.MOUSEREL = (0, 0)  # primes staying with mouse--assign to 0, 0?? **
             self.color = 'green'
             self.dirty = 1
-        elif self.clickable and self.clicked:  # clicked also dep on self.hovering
-            # print('clicking')
-            self.color = 'red'
-            self.gotomouse()
-            self.dirty = 1
+        # elif self.clickable and self.clicked:  # todo this is not working --clicked also dep on self.hovering
+        #     # print('clicking')
+        #     self.color = 'red'
+        #     self.gotomouse()
+        #     # self.dirty = 1
         else:
             self.color = 'white'
             # print(self.default_xy())
             self.x, self.y = self.default_xy()
+
         # self.dirty = 1
         super().update()  # calls default xy
 

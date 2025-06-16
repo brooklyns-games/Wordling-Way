@@ -11,7 +11,7 @@ from pprint import pprint
 
 make_words = {
         # this is getting too complex and nested
-        usefuls.verb: ({'go','eat'}, {'make', 'give', }),
+        usefuls.verb: ({'look at'}, {'go', 'eat', 'make', 'give', }),
         usefuls.noun: ({'me', 'you', 'what', 'this', }, {'pickle'}),
     }
 word_bank = {SourceWordBubble(i, cat, cat=cat, autospawn=False)  # if True else
@@ -104,4 +104,7 @@ class Quest:
         self.desc = desc
         self.words = words
 
-MAP = [Scene("It seems that you are in a <pickle>...", box=usefuls.scene_box)]
+MAP = [
+    Scene("You open your eyes to find yourself on the ground floor of an expansive <library>."
+          "", box=usefuls.scene_box)
+]
