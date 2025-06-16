@@ -100,6 +100,7 @@ class Box(Thing, ABC):
     def __init__(self, name=None, rect=(0, 0, W, H), color='orange',
                  sticky: bool =True, bind=None, weight:float =1, include=None):
         """
+        Base class for Boxes
         :param sticky: Removing a word does not affect positions
         :param bind: Interface(), overrides self.rect
         """

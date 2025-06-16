@@ -12,8 +12,9 @@ class Interface(Box):
         self.mini_rect = self.rect.copy()
 
 
-class WriteBox(Box, ABC):
+class WordBox(Box, ABC):
     def __init__(self, name, rect=(0, 0, W, H), bind=None, color='green', include=None):
+        """WordBox is an abstract class for the boxes with words in them. """
         # from words import Word
         # from button import WordBubble
         super().__init__(name, rect, color=color, sticky=False, bind=bind, include=include)
@@ -47,13 +48,15 @@ class WriteBox(Box, ABC):
         return self.positions[sprite]
 
 
-class SceneBox(WriteBox):
+class SceneBox(WordBox):
     def __init__(self, rect=(0, 0, W, H), bind=None):
+        """Scene Box is where the narrator explains the scene, and can give you new words"""
         super().__init__('scene', rect, bind, color='orange')
 
 
-class InputBox(WriteBox):
+class InputBox(WordBox):
     def __init__(self, rect=(0, 0, W, H), bind=None):
+        """Input box is where the user can interact with the scene"""
         super().__init__('input', rect, bind, color='light blue', include=WordBubble)
         self.words = UnorderedGroup(self.name, include=WordBubble)  # recast as Unordered
 
@@ -62,8 +65,9 @@ class InputBox(WriteBox):
         # print(self.words.list_names())
 
 
-class WordBox(Box):
+class LibraryBox(Box):
     def __init__(self, name, color='light green', rect=(0, 0, W, H), bind=None):
+        """Word box is where you find nouns, verbs, and adjectives"""
         super().__init__(name, rect, color, sticky=True, bind=bind)
 
 

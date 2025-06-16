@@ -128,7 +128,8 @@ class WordBubble(Button):
 class SourceWordBubble(WordBubble):
     def __init__(self, string, box, cat=None, autospawn=False):
         super().__init__(string, box, cat=cat, autospawn=autospawn)
-        print(self.string)
+        print(box)
+        # print(self.string)
 
     def make_child(self, dest, cls=WordBubble) -> WordBubble:
         """Creates a new child inside this box"""

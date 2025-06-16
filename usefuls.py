@@ -91,8 +91,8 @@ scene_box = SceneBox((0, 0, W, H / 3))
 input_box = InputBox([0, H / 3, W, H / 3, ])
 
 wordboxes = Interface([0, int(H * 2 / 3), W, (H / 3)], name='word boxes')
-verb = WordBox('verb', 'light green', bind=wordboxes)  # optimize calculations
-noun = WordBox('noun', 'magenta', bind=wordboxes)
+verb = LibraryBox('verb', 'light green', bind=wordboxes)  # optimize calculations
+noun = LibraryBox('noun', 'magenta', bind=wordboxes)
 
 all_vars = dir()
 for name in all_vars:

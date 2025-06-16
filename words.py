@@ -68,6 +68,7 @@ class Scene:
         words = set()
         for i in self.words.split(' '):
             name = self.is_key(i)
+
             if not name:
                 words.add(Word(i, self.box))
             else:  # detects a keyword
@@ -76,7 +77,9 @@ class Scene:
                 #     words.add(Scene.word_dict[name])  # find the already-made sprite
                 #     print(Scene.word_dict[name].name)
                 # else:  # makes a new one
-                words.add(SourceWordBubble(name, usefuls.noun, cat=None))
+                new_word = SourceWordBubble(name, self.box, cat=None, autospawn=True)
+                print(new_word)
+                words.add(new_word)
 
 # try xml, research
 #...add as csv ****
