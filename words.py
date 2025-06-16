@@ -11,7 +11,7 @@ from pprint import pprint
 
 make_words = {
         # this is getting too complex and nested
-        usefuls.verb: ({'go', }, {'eat', 'make', 'give', }),
+        usefuls.verb: ({'go','eat'}, {'make', 'give', }),
         usefuls.noun: ({'me', 'you', 'what', 'this', }, {'pickle'}),
     }
 word_bank = {SourceWordBubble(i, cat, cat=cat, autospawn=False)  # if True else
@@ -72,13 +72,14 @@ class Scene:
             if not name:
                 words.add(Word(i, self.box))
             else:  # detects a keyword
+                from usefuls import input_box
                 # if name in word_bank_names:
                 #     # print(Scene.word_dict[name].make_child(self.box, cls=SourceWordBubble))  # another source
                 #     words.add(Scene.word_dict[name])  # find the already-made sprite
                 #     print(Scene.word_dict[name].name)
                 # else:  # makes a new one
-                new_word = SourceWordBubble(name, self.box, cat=None, autospawn=True)
-                print(new_word)
+                new_word = SourceWordBubble(name, self.box, cat=input_box, autospawn=True)
+                # print(new_word)
                 words.add(new_word)
 
 # try xml, research

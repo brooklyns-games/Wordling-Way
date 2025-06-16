@@ -142,11 +142,11 @@ class SourceWordBubble(WordBubble):
         # print('toggle')
         from menu import SceneBox
         if type(self.box) is SceneBox:  # todo put in method in box, scenebox still does this
-            # print(self.cat.words.list_names(), self.input_box.name)
-            if self.name in self.cat.words.list_names():  # word is already there
-                self.make_child(self.input_box)
-            else:
-                self.make_child(self.cat, SourceWordBubble)
+            # I don't remem what I wanted to separate known and unknown words for again...
+            # if True:  # self.name in self.cat.words.list_names():  # word is already there
+            self.make_child(self.input_box)
+            # else:
+            #     self.make_child(self.cat, SourceWordBubble)
         else:
             # print(self.input_box.name)
             self.make_child(self.input_box)
